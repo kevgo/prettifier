@@ -1,9 +1,6 @@
 module.exports = {
   root: true,
   parser: "@typescript-eslint/parser",
-  parserOptions: {
-    project: "./tsconfig.json",
-  },
   plugins: ["@typescript-eslint"],
   extends: [
     "eslint:recommended",
@@ -12,7 +9,10 @@ module.exports = {
   ],
   rules: {
     "@typescript-eslint/no-use-before-define": ["error", "nofunc"],
-    "@typescript-eslint/member-delimiter-style": ["error", { multiline: { delimiter: "none" } }],
+    "@typescript-eslint/member-delimiter-style": [
+      "error",
+      { multiline: { delimiter: "none" } },
+    ],
     "@typescript-eslint/no-explicit-any": ["off"],
   },
 }

@@ -10,6 +10,12 @@
       }
     },
     {
+      "files": "*.js",
+      "options": {
+        "printWidth": 120
+      }
+    },
+    {
       "files": "**/*.js",
       "options": {
         "printWidth": 120

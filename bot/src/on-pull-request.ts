@@ -15,6 +15,7 @@ import { prettierConfigFromYML } from "./prettier/prettier-config-from-yml"
 import { prettifierConfigFromYML } from "./config/prettifier-configuration-from-yml"
 import { PrettifierConfiguration } from "./config/prettifier-configuration"
 import { PullRequestContextData, loadPullRequestContextData } from "./github/load-pull-request-context-data"
+import prettier from "prettier"
 
 /** called when this bot gets notified about a new pull request */
 export async function onPullRequest(context: probot.Context<webhooks.WebhookPayloadPullRequest>): Promise<void> {
@@ -190,7 +191,7 @@ export async function onPullRequest(context: probot.Context<webhooks.WebhookPayl
 
 interface PullRequestContext {
   prettifierConfig: PrettifierConfiguration
-  prettierConfig: object
+  prettierConfig: prettier.Options
   prettierIgnore: string
 }
 

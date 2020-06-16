@@ -16,6 +16,7 @@ import { prettifierConfigFromYML } from "./config/prettifier-configuration-from-
 import { prettierConfigFromYML } from "./prettier/prettier-config-from-yml"
 import { PrettifierConfiguration } from "./config/prettifier-configuration"
 import { loadPushContextData, PushContextData } from "./github/load-push-context-data"
+import prettier from "prettier"
 
 /** called when this bot gets notified about a push on Github */
 export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush>): Promise<void> {
@@ -247,7 +248,7 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
 
 interface PushContext {
   prettifierConfig: PrettifierConfiguration
-  prettierConfig: object
+  prettierConfig: prettier.Options
   pullRequestId: string
   pullRequestNumber: number
   pullRequestURL: string

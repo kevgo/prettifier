@@ -10,7 +10,7 @@ export async function hasCommentFromPrettifier(
   github: GitHubAPI
 ): Promise<boolean> {
   const query = await fs.readFile(path.join("src", "github", "pullrequest-comment-authors.graphql"), "utf-8")
-  const callResult = await github.graphql(query, { org, repo, pullrequest })
+  const callResult: any = await github.graphql(query, { org, repo, pullrequest })
   for (const comment of callResult?.repository.pullRequest.comments.nodes) {
     if (comment.author.login === "prettifier") {
       return true

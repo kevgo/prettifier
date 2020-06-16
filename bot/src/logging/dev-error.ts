@@ -27,7 +27,7 @@ export async function logDevError(err: Error, activity: string, context: Context
   })
 }
 
-export function bodyTemplate(err: Error, context: object): string {
+export function bodyTemplate(err: Error, context: Context): string {
   let result = "Environment:\n"
   for (const [k, v] of Object.entries(context)) {
     if (typeof v === "object") {

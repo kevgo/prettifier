@@ -33,7 +33,7 @@ help:   # prints all make targets
 
 lint:  # lints the code base
 	node_modules$/.bin$/tsc --noEmit
-	node_modules$/.bin$/eslint . --ext .ts
+	node_modules$/.bin$/eslint -c .eslintrc.js --ext .ts .
 	@find . -type f \( \
 					-name '*.ts' -o \
 					-name '*.js' -o \
@@ -50,17 +50,17 @@ logs:   # shows the log output from the production server
 stats:  # shows code statistics
 	@find . -type f | grep -v '\./node_modules/' | grep -v '\./dist/' | xargs cloc
 
-test:  # runs all tests
-	@node_modules$/.bin$/eslint . --ext .ts &
-	@node_modules$/.bin$/mocha src/**/*.test.ts --reporter dot &
-	@make --no-print-directory lint
-.PHONY: test
-
 setup:  # prepares this code base for development
 	yarn
 
 start:   # starts the server
 	yarn start
+
+test:  # runs all tests
+	@node_modules$/.bin$/eslint . --ext .ts &
+	@node_modules$/.bin$/mocha src/**/*.test.ts --reporter dot &
+	@make --no-print-directory lint
+.PHONY: test
 
 unit:  # runs the unit tests
 	@node_modules$/.bin$/mocha src/**/*.test.ts --reporter dot

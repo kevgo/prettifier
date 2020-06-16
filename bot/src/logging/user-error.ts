@@ -6,9 +6,9 @@ import { Context } from "./context"
 export class UserError extends Error {
   activity: string
   cause: Error
-  context: object
+  context: Context
 
-  constructor(activity: string, cause: Error, context: object = {}) {
+  constructor(activity: string, cause: Error, context: Context = {}) {
     super()
     this.activity = activity
     this.cause = cause

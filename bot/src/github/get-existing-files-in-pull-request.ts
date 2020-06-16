@@ -15,7 +15,6 @@ export async function getExistingFilesInPullRequests(
   // https://github.community/t5/GitHub-API-Development-and/GraphQL-API-doesn-t-indicate-which-files-in-a-PR-are-new/m-p/35031
   const callResult = await github.pulls.listFiles({
     owner: org,
-    // eslint-disable-next-line @typescript-eslint/camelcase
     pull_number: pullRequestNumber,
     repo,
   })
