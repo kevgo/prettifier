@@ -81,7 +81,23 @@ export async function onPullRequest(context: probot.Context<webhooks.WebhookPayl
       }
 
       // load the file content
-      const fileContent = await loadFile(headOrg, repo, branch, filePath, context.github)
+      let fileContent = ""
+      try {
+        fileContent = await loadFile(headOrg, repo, branch, filePath, context.github)
+      } catch (e) {
+        if (e instanceof RequestError) {
+          const requestError = e as RequestError
+          if (requestError.status === 403) {
+            // file exists but the server refused to serve the file --> ignore
+            continue
+          }
+          if (requestError.status === 404) {
+            // file no longer exists, probably because the branch was deleted --> ignore
+            continue
+          }
+        }
+        throw e
+      }
 
       // prettify the file content
       const prettierConfigForFile = applyPrettierConfigOverrides(prettierConfig, filePath)
