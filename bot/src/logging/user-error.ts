@@ -20,11 +20,12 @@ export class UserError extends Error {
 export function logUserError(
   err: Error,
   desc: string,
-  context: Context,
+  org: string,
+  repo: string,
   pullRequestId: string,
   github: GitHubAPI
 ): void {
-  console.log(`${context.org}|${context.repo}: USER ERROR: ${desc}:`, err.message)
+  console.log(`${org}|${repo}: USER ERROR: ${desc}:`, err.message)
   if (pullRequestId !== "") {
     addComment(pullRequestId, bodyTemplate(err, desc), github)
   }

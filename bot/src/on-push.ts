@@ -17,6 +17,7 @@ import { prettierConfigFromYML } from "./prettier/prettier-config-from-yml"
 import { PrettifierConfiguration } from "./config/prettifier-configuration"
 import { loadPushContextData, PushContextData } from "./github/load-push-context-data"
 import prettier from "prettier"
+import { UserError, logUserError } from "./logging/user-error"
 
 /** called when this bot gets notified about a push on Github */
 export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush>): Promise<void> {
@@ -235,6 +236,10 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
         { org, repo, branch, commitSha, pullRequestURL, payload: context.payload },
         context.github
       )
+      return
+    }
+    if (e instanceof UserError) {
+      logUserError(e, e.activity, org, repo, pullRequestId, context.github)
       return
     }
     logDevError(

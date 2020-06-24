@@ -16,6 +16,7 @@ import { prettifierConfigFromYML } from "./config/prettifier-configuration-from-
 import { PrettifierConfiguration } from "./config/prettifier-configuration"
 import { PullRequestContextData, loadPullRequestContextData } from "./github/load-pull-request-context-data"
 import prettier from "prettier"
+import { UserError, logUserError } from "./logging/user-error"
 
 /** called when this bot gets notified about a new pull request */
 export async function onPullRequest(context: probot.Context<webhooks.WebhookPayloadPullRequest>): Promise<void> {
@@ -178,6 +179,10 @@ export async function onPullRequest(context: probot.Context<webhooks.WebhookPayl
       e.context.branch = branch
       e.context.pullRequestNumber = pullRequestNumber
       logDevError(e, e.activity, e.context, context.github)
+      return
+    }
+    if (e instanceof UserError) {
+      logUserError(e, e.activity, org, repo, pullRequestId, context.github)
       return
     }
     logDevError(
