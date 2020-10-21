@@ -2,7 +2,7 @@ import { GitHubAPI } from "probot/lib/github"
 import { addComment } from "../github/add-comment"
 import { Context } from "./context"
 
-/** UserError indicates a user error */
+/** UserError indicates an error that the user made */
 export class UserError extends Error {
   activity: string
   cause: Error

@@ -2,7 +2,7 @@ import util from "util"
 import { GitHubAPI } from "probot/lib/github"
 import { Context } from "./context"
 
-/** DevError incidates a developer error */
+/** DevError incidates a Prettifier bug */
 export class DevError extends Error {
   activity: string
   context: Context
