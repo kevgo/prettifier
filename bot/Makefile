@@ -8,7 +8,7 @@ else
 endif
 
 build: clean  # builds the production version
-	@node_modules$/.bin$/tsc -p .
+	@node_modules$/.bin$/tsc -p tsconfig-build.json
 
 clean:  # removes all build artifacts
 	@rm -rf dist
@@ -32,7 +32,6 @@ help:   # prints all make targets
 	@cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
 lint:  # lints the code base
-	node_modules$/.bin$/tsc --noEmit
 	node_modules$/.bin$/eslint -c .eslintrc.js --ext .ts .
 	@find . -type f \( \
 					-name '*.ts' -o \
