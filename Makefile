@@ -16,19 +16,21 @@ clean:  # removes all build artifacts
 
 docs:  # verifies the documentation
 	@(cd bot && make --no-print-directory build)
-	@tools/text-runner/text-run --format dot --offline
+	@node_modules/.bin/text-run --format dot --offline
 .PHONY: docs
 
 fix:  # fixes the auto-fixable formatting issues
-	tools/prettier/prettier --write .
+	node_modules/.bin/prettier --write .
 	@(cd bot && make --no-print-directory fix)
+	@(cd website && make --no-print-directory fix)
 
 help:   # shows all available Make commands
 	@cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
 lint:  # lints the code base
-	@tools/prettier/prettier --list-different .
+	@node_modules/.bin/prettier --list-different .
 	@(cd bot && make --no-print-directory lint)
+	@(cd website && make --no-print-directory lint)
 
 log:   # shows the log output from the production server
 	heroku logs --tail --app prettifier-prod
@@ -42,9 +44,7 @@ test:  # runs all tests
 	@make --no-print-directory docs
 
 setup:  # prepares the code base for working after being cloned
-	@(cd bot && make --no-print-directory setup)
-	@(cd tools && make --no-print-directory setup)
-	@(cd text-run && yarn)
+	@yarn
 	@(cd website && make --no-print-directory setup)
 
 update:  # updates dependencies to the latest version

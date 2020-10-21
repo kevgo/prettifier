@@ -9,6 +9,9 @@ clear:  # removes the build artifacts
 help:   # shows all available Make commands
 	@cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
+lint: # TODO: uncomment once Prettifier can read the new config format
+	# ${CURDIR}/../node_modules/.bin/prettier --list-different .
+
 setup:
 	@echo "Please install Hugo if you haven't yet: https://gohugo.io/getting-started/installing"
 

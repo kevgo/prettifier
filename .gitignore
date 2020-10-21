@@ -1,4 +1,2 @@
 /bot/dist
-/bot/node_modules
-/text-run/node_modules/
-/tools/text-runner/node_modules/
+node_modules
