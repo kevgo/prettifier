@@ -36,7 +36,6 @@ test:  # runs all tests
 	${CURDIR}/node_modules/.bin/eslint . --ext .ts &
 	${CURDIR}/../tools/prettier/prettier --list-different --ignore-path=../.prettierignore . &
 	${CURDIR}/node_modules/.bin/mocha src/**/*.test.ts --reporter dot
-.PHONY: test
 
 unit:  # runs the unit tests
 	${CURDIR}/node_modules/.bin/mocha src/**/*.test.ts --reporter dot
