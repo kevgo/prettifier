@@ -34,8 +34,8 @@ start:   # starts the server
 
 test:  # runs all tests
 	${CURDIR}/node_modules/.bin/eslint . --ext .ts &
-	${CURDIR}/node_modules/.bin/mocha src/**/*.test.ts --reporter dot &
-	make --no-print-directory lint
+	${CURDIR}/../tools/prettier/prettier --list-different --ignore-path=../.prettierignore . &
+	${CURDIR}/node_modules/.bin/mocha src/**/*.test.ts --reporter dot
 .PHONY: test
 
 unit:  # runs the unit tests
