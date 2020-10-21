@@ -28,7 +28,6 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
   let commitSha = ""
   let pullRequestNumber = 0
   let pullRequestId = ""
-  let pullRequestURL = ""
   try {
     org = context.payload.repository.owner.login
     repo = context.payload.repository.name
@@ -68,7 +67,6 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(prettierConfig)}`)
     pullRequestNumber = pushContext.pullRequestNumber
     pullRequestId = pushContext.pullRequestId
-    pullRequestURL = pushContext.pullRequestURL
 
     // check whether this branch should be ignored
     if (prettifierConfig.shouldIgnoreBranch(branch)) {
@@ -229,25 +227,25 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
     if (e instanceof LoggedError) {
       return
     }
+    const errorContext = {
+      event: "on-pull-request",
+      org,
+      repo,
+      branch,
+      pullRequestId,
+      pullRequestNumber,
+      payload: context.payload,
+    }
     if (e instanceof DevError) {
-      logDevError(
-        e.cause,
-        e.activity,
-        { org, repo, branch, commitSha, pullRequestURL, payload: context.payload },
-        context.github
-      )
+      e.enrich(errorContext)
+      logDevError(e, context.github)
       return
     }
     if (e instanceof UserError) {
-      logUserError(e, e.activity, org, repo, pullRequestId, context.github)
+      logUserError(e, context.github)
       return
     }
-    logDevError(
-      e,
-      "Development error",
-      { org, repo, branch, pullRequestURL, event: "on-push", payload: context.payload },
-      context.github
-    )
+    logDevError(e, context.github)
   }
 }
 

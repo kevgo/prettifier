@@ -14,22 +14,27 @@ export class DevError extends Error {
     this.cause = cause
     this.context = context
   }
+
+  /** adds missing fields from the given context to this error */
+  enrich(additionalContext: Context): void {
+    this.context = { ...additionalContext, ...this.context }
+  }
 }
 
 /** logs the given developer error as a GitHub issue */
-export async function logDevError(err: Error, activity: string, context: Context, github: GitHubAPI): Promise<void> {
-  console.log(`${context.org}|${context.repo}|${context.branch}: Error ${activity}`)
+export async function logDevError(err: DevError, github: GitHubAPI): Promise<void> {
+  console.log(`${err.context.org}|${err.context.repo}|${err.context.branch}: DevError ${err.activity}`)
   await github.issues.create({
     owner: "kevgo",
     repo: "prettifier",
-    title: `Error ${activity}: ${err.message}`,
-    body: bodyTemplate(err, context),
+    title: `Error ${err.activity}: ${err.message}`,
+    body: bodyTemplate(err),
   })
 }
 
-export function bodyTemplate(err: Error, context: Context): string {
+export function bodyTemplate(err: DevError): string {
   let result = "Environment:\n"
-  for (const [k, v] of Object.entries(context)) {
+  for (const [k, v] of Object.entries(err.context)) {
     if (typeof v === "object") {
       result += `- **${k}:**\n\`\`\`\n${JSON.stringify(v, null, 2)}\n\`\`\`\n`
     } else {
@@ -41,7 +46,19 @@ export function bodyTemplate(err: Error, context: Context): string {
 ### Error
 
 \`\`\`
-${util.inspect(err, false, Infinity)}
+${util.inspect(err, true, Infinity)}
+\`\`\`
+
+### Cause
+
+\`\`\`
+${util.inspect(err.cause, true, Infinity)}
+\`\`\`
+
+### Context
+
+\`\`\`
+${util.inspect(err.context, true, Infinity)}
 \`\`\`
 
 ### Stack

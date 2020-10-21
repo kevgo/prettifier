@@ -13,6 +13,16 @@ test("constructor()", function () {
 })
 
 test("bodyTemplate()", function () {
-  const actual = bodyTemplate(new Error(), "desc")
+  const actual = bodyTemplate(new UserError("activity", new Error(), {}))
   assert.isNotEmpty(actual)
+})
+
+test("enrich", function () {
+  const cause = new Error("cause")
+  const context = { foo: "bar" }
+  const e = new UserError("activity", cause, context)
+  e.enrich({ one: 1, two: 2, foo: "not used" })
+  assert.equal(e.context.foo, "bar")
+  assert.equal(e.context.one, 1)
+  assert.equal(e.context.two, 2)
 })

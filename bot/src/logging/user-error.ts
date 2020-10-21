@@ -14,28 +14,26 @@ export class UserError extends Error {
     this.cause = cause
     this.context = context
   }
-}
 
-/** Logs a user mistake. */
-export function logUserError(
-  err: Error,
-  desc: string,
-  org: string,
-  repo: string,
-  pullRequestId: string,
-  github: GitHubAPI
-): void {
-  console.log(`${org}|${repo}: USER ERROR: ${desc}:`, err.message)
-  if (pullRequestId !== "") {
-    addComment(pullRequestId, bodyTemplate(err, desc), github)
+  /** adds missing fields from the given context to this error */
+  enrich(additionalContext: Context): void {
+    this.context = { ...additionalContext, ...this.context }
   }
 }
 
-export function bodyTemplate(err: Error, desc: string): string {
+/** Logs a user mistake. */
+export function logUserError(e: UserError, github: GitHubAPI): void {
+  console.log(`${e.context.org}|${e.context.repo}: USER ERROR: ${e.activity}:`, e.message)
+  if (e.context.pullRequestId !== "") {
+    addComment(e.context.pullRequestId, bodyTemplate(e), github)
+  }
+}
+
+export function bodyTemplate(err: UserError): string {
   return `Prettifier-Bot here. I noticed a problem with your setup:
 
 \`\`\`
-${desc}
+${err.activity}
 \`\`\`
 
 More details:
