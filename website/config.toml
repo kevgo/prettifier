@@ -4,7 +4,7 @@ title = "Prettifier"
 theme = "hugo-theme-learn"
 
 [params]
-editURL = "https://github.com/kevgo/prettifier/edit/master/website/docs/"
+editURL = "https://github.com/kevgo/prettifier/edit/master/website/content/"
 author = "Kevin Goslar"
 description = "A GitHub bot that auto-formats with Prettier"
 disableSearch = true

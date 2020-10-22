@@ -14,10 +14,9 @@ build: clean  # builds all code bases
 clean:  # removes all build artifacts
 	@(cd bot && make --no-print-directory clean)
 
-docs:  # verifies the documentation
+doc:  # verifies the documentation
 	@(cd bot && make --no-print-directory build)
 	@node_modules/.bin/text-run --format dot --offline
-.PHONY: docs
 
 fix:  # fixes the auto-fixable formatting issues
 	node_modules/.bin/prettier --write .
@@ -36,12 +35,12 @@ log:   # shows the log output from the production server
 	heroku logs --tail --app prettifier-prod
 
 stats:  # shows code statistics
-	@find . -type f | grep -v '/node_modules/' | grep -v '/dist/' | grep -v '\./.git/' | grep -v '\./docs/' | grep -v '\./tools/' | grep -v '\./website/website/' | xargs scc
+	@find . -type f | grep -v '/node_modules/' | grep -v '/dist/' | grep -v '\./.git/' | grep -v '\./website/website/' | xargs scc
 
 test:  # runs all tests
 	@make --no-print-directory lint
 	@(cd bot && make --no-print-directory test)
-	@make --no-print-directory docs
+	@make --no-print-directory doc
 
 setup:  # prepares the code base for working after being cloned
 	@yarn
