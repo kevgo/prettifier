@@ -5,6 +5,7 @@
   "dependencies": {
     "assert-no-diff": "3.0.4",
     "js-yaml": "3.14.0",
-    "text-runner": "4.0.2"
+    "text-runner": "5.0.0-pre10",
+    "textrun-make": "0.0.11"
   }
 }

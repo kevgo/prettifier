@@ -9,7 +9,7 @@ clean:  # removes all build artifacts
 
 doc:  # verifies the documentation
 	(cd bot && make build)
-	${CURDIR}/node_modules/.bin/text-run --format dot --offline
+	${CURDIR}/node_modules/.bin/text-run --format=dot --offline
 
 fix:  # fixes the auto-fixable formatting issues
 	${CURDIR}/node_modules/.bin/prettier --write .
