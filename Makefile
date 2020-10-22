@@ -1,12 +1,5 @@
 .DEFAULT_GOAL := build
 
-# platform-specificity
-ifdef ComSpec
-	/ := $(strip \)
-else
-	/ := /
-endif
-
 build: clean  # builds all code bases
 	@(cd bot && make --no-print-directory build)
 	@(cd website && make --no-print-directory build)
@@ -16,10 +9,10 @@ clean:  # removes all build artifacts
 
 doc:  # verifies the documentation
 	@(cd bot && make --no-print-directory build)
-	@node_modules/.bin/text-run --format dot --offline
+	@${CURDIR}/node_modules/.bin/text-run --format dot --offline
 
 fix:  # fixes the auto-fixable formatting issues
-	node_modules/.bin/prettier --write .
+	${CURDIR}/node_modules/.bin/prettier --write .
 	@(cd bot && make --no-print-directory fix)
 	@(cd website && make --no-print-directory fix)
 
@@ -27,7 +20,7 @@ help:   # shows all available Make commands
 	@cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
 lint:  # lints the code base
-	@node_modules/.bin/prettier --list-different .
+	@${CURDIR}/node_modules/.bin/prettier --list-different .
 	@(cd bot && make --no-print-directory lint)
 	@(cd website && make --no-print-directory lint)
 
