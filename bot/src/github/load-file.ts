@@ -9,7 +9,7 @@ export async function loadFile(
   filePath: string,
   github: InstanceType<typeof ProbotOctokit>
 ): Promise<string> {
-  const result = await github.repos.getContents({
+  const result = await github.repos.getContent({
     owner: org,
     path: filePath,
     ref: branch,
