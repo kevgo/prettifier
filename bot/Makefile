@@ -10,16 +10,16 @@ deploy:  # deploys the current branch to Heroku
 	(cd .. && git push heroku $(shell cd .. && git subtree split --prefix bot $(shell git branch --show-current)):master --force)
 
 fix:  # fixes the auto-fixable formatting issues
-	${CURDIR}/../node_modules/.bin/prettier --write --ignore-path=../.prettierignore .
-	${CURDIR}/../node_modules/.bin/eslint . --ext .ts --fix
+	${CURDIR}/node_modules/.bin/prettier --write --ignore-path=../.prettierignore .
+	${CURDIR}/node_modules/.bin/eslint . --ext .ts --fix
 
 help:   # prints all make targets
 	@cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
 lint:  # lints the code base
-	${CURDIR}/../node_modules/.bin/eslint -c .eslintrc.js --ext .ts .
+	${CURDIR}/node_modules/.bin/eslint -c .eslintrc.js --ext .ts .
 	# TODO: uncomment once Prettifier can read the new config format
-	# ${CURDIR}/../node_modules/.bin/prettier --list-different .
+	# ${CURDIR}/node_modules/.bin/prettier --list-different .
 
 logs:   # shows the log output from the production server
 	heroku logs --tail --app prettifier-prod
@@ -34,8 +34,8 @@ start:   # starts the server
 	yarn start
 
 test:  # runs all tests
-	${CURDIR}/../node_modules/.bin/eslint . --ext .ts &
-	${CURDIR}/../node_modules/.bin/prettier --list-different --ignore-path=../.prettierignore . &
+	${CURDIR}/node_modules/.bin/eslint . --ext .ts &
+	${CURDIR}/node_modules/.bin/prettier --list-different --ignore-path=../.prettierignore . &
 	${CURDIR}/node_modules/.bin/mocha src/**/*.test.ts --reporter dot
 
 unit:  # runs the unit tests

@@ -9,10 +9,10 @@ clean:  # removes all build artifacts
 
 doc:  # verifies the documentation
 	(cd bot && make build)
-	${CURDIR}/node_modules/.bin/text-run --format=dot --offline
+	${CURDIR}/text-run/node_modules/.bin/text-run --format=dot --offline
 
 fix:  # fixes the auto-fixable formatting issues
-	${CURDIR}/node_modules/.bin/prettier --write .
+	${CURDIR}/bot/node_modules/.bin/prettier --write .
 	(cd bot && make fix)
 	(cd website && make fix)
 
@@ -20,7 +20,7 @@ help:   # shows all available Make commands
 	cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
 lint:  # lints the code base
-	${CURDIR}/node_modules/.bin/prettier --list-different .
+	${CURDIR}/bot/node_modules/.bin/prettier --list-different .
 	(cd bot && make lint)
 	(cd website && make lint)
 
@@ -36,7 +36,8 @@ test:  # runs all tests
 	make doc
 
 setup:  # prepares the code base for working after being cloned
-	yarn
+	(cd bot && make setup)
+	(cd text-run && yarn)
 	(cd website && make setup)
 
 update:  # updates dependencies to the latest version
