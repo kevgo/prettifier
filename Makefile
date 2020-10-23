@@ -40,7 +40,6 @@ setup:  # prepares the code base for working after being cloned
 	(cd website && make setup)
 
 update:  # updates dependencies to the latest version
-	(cd bot && make update)
-	(cd tools && make update)
+	yarn upgrade-interactive --latest
 
 .SILENT:
