@@ -1,5 +1,5 @@
-import * as probot from "probot"
-import { GitHubAPI } from "probot/lib/github"
+import { GitCreateBlobResponseData } from "@octokit/types"
+import { ProbotOctokit } from "probot"
 
 export interface FileToCreate {
   path: string
@@ -12,7 +12,7 @@ export async function createCommit(args: {
   branch: string
   message: string
   files: FileToCreate[]
-  github: GitHubAPI
+  github: InstanceType<typeof ProbotOctokit>
 }): Promise<void> {
   // NOTE: we don't automatically catch errors here
   //       since this can legitimately fail
@@ -35,7 +35,7 @@ export async function createCommit(args: {
   const treeSha = getCommitResult.data.tree.sha
 
   // upload the file contents
-  const fileBlobs: probot.Octokit.GitCreateBlobResponse[] = []
+  const fileBlobs: GitCreateBlobResponseData[] = []
   for (const file of args.files) {
     const response = await args.github.git.createBlob({
       content: file.content,
@@ -47,7 +47,7 @@ export async function createCommit(args: {
   }
 
   // create the new tree
-  const treeParams: probot.Octokit.GitCreateTreeParamsTree[] = []
+  const treeParams: GitCreateTreeParamsTree[] = []
   for (let i = 0; i < fileBlobs.length; i++) {
     treeParams.push({
       mode: "100644",
@@ -80,4 +80,13 @@ export async function createCommit(args: {
     repo: args.repo,
     sha: newCommitSha,
   })
+}
+
+// NOTE: had to copy-and-paste this because neither Probot nor Octokit seem to export this
+type GitCreateTreeParamsTree = {
+  path?: string
+  mode?: "100644" | "100755" | "040000" | "160000" | "120000"
+  type?: "blob" | "tree" | "commit"
+  sha?: string
+  content?: string
 }

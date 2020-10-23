@@ -11,7 +11,7 @@
     "js-yaml": "3.14.0",
     "minimatch": "3.0.4",
     "mustache": "4.0.1",
-    "probot": "9.11.5"
+    "probot": "10.9.4"
   },
   "devDependencies": {
     "@graphql-inspector/cli": "2.1.0",

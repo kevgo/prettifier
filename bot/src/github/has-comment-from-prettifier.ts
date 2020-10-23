@@ -1,4 +1,4 @@
-import { GitHubAPI } from "probot/lib/github"
+import { ProbotOctokit } from "probot"
 import { promises as fs } from "fs"
 import path from "path"
 
@@ -7,7 +7,7 @@ export async function hasCommentFromPrettifier(
   org: string,
   repo: string,
   pullrequest: number,
-  github: GitHubAPI
+  github: InstanceType<typeof ProbotOctokit>
 ): Promise<boolean> {
   const query = await fs.readFile(path.join("src", "github", "pullrequest-comment-authors.graphql"), "utf-8")
   const callResult: any = await github.graphql(query, { org, repo, pullrequest })

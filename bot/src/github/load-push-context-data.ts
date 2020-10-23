@@ -1,4 +1,4 @@
-import { GitHubAPI } from "probot/lib/github"
+import { ProbotOctokit } from "probot"
 import { promises as fs } from "fs"
 import { DevError } from "../logging/dev-error"
 import path from "path"
@@ -16,7 +16,7 @@ export async function loadPushContextData(
   org: string,
   repo: string,
   branch: string,
-  github: GitHubAPI
+  github: InstanceType<typeof ProbotOctokit>
 ): Promise<PushContextData> {
   let query = await fs.readFile(path.join("src", "github", "push-context.graphql"), "utf-8")
   query = query.replace(/\{\{branch\}\}/g, branch)

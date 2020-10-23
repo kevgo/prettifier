@@ -1,4 +1,4 @@
-import { GitHubAPI } from "probot/lib/github"
+import { ProbotOctokit } from "probot"
 import { addComment } from "../github/add-comment"
 import { Context } from "./context"
 
@@ -22,7 +22,7 @@ export class UserError extends Error {
 }
 
 /** Logs a user mistake. */
-export function logUserError(e: UserError, github: GitHubAPI): void {
+export function logUserError(e: UserError, github: InstanceType<typeof ProbotOctokit>): void {
   console.log(`${e.context.org}|${e.context.repo}: USER ERROR: ${e.activity}:`, e.message)
   if (e.context.pullRequestId !== "") {
     addComment(e.context.pullRequestId, bodyTemplate(e), github)

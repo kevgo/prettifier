@@ -1,4 +1,4 @@
-import { GitHubAPI } from "probot/lib/github"
+import { ProbotOctokit } from "probot"
 import { DevError } from "../logging/dev-error"
 
 /** Loads the content of the given file in the given branch from GitHub. */
@@ -7,7 +7,7 @@ export async function loadFile(
   repo: string,
   branch: string,
   filePath: string,
-  github: GitHubAPI
+  github: InstanceType<typeof ProbotOctokit>
 ): Promise<string> {
   const result = await github.repos.getContents({
     owner: org,

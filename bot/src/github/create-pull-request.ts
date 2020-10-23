@@ -1,5 +1,5 @@
 import { createCommit, FileToCreate } from "./create-commit"
-import { GitHubAPI } from "probot/lib/github"
+import { ProbotOctokit } from "probot"
 import { DevError } from "../logging/dev-error"
 import { RequestError } from "@octokit/request-error"
 import { LoggedError } from "../logging/logged-error"
@@ -12,7 +12,7 @@ export async function createPullRequest(args: {
   message: string
   body: string
   files: FileToCreate[]
-  github: GitHubAPI
+  github: InstanceType<typeof ProbotOctokit>
 }): Promise<void> {
   // get the SHA of the latest commit in the parent branch
   try {

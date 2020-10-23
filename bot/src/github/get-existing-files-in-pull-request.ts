@@ -1,4 +1,4 @@
-import { GitHubAPI } from "probot/lib/github"
+import { ProbotOctokit } from "probot"
 
 /**
  * Returns the paths for files that exist in the given pull request.
@@ -8,7 +8,7 @@ export async function getExistingFilesInPullRequests(
   org: string,
   repo: string,
   pullRequestNumber: number,
-  github: GitHubAPI
+  github: InstanceType<typeof ProbotOctokit>
 ): Promise<string[]> {
   // This is a candidate to do via the GraphQL API.
   // This API doesn't support showing whether the file was added or deleted yet.
