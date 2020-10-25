@@ -6,26 +6,25 @@ This is the source code for the Prettifier bot.
 
 Install these tools:
 
-- [Node.js](https://nodejs.org) version 8 or later
+- [Node.js](https://nodejs.org) version 12 or later
 - [Yarn](https://yarnpkg.com/en/docs/install)
 
-Run <code type="make/command"> make setup </code>.
+Run <code type="make/command">make setup</code>.
 
 ### Development
 
 Use [GitHub's API explorer](https://developer.github.com/v4/explorer) to play
 with GitHub's GraphQL API.
 
-### Testing
+### Local testing
 
+- compile the code: <code type="make/command">make build</code> or `make`
 - run all tests: <code type="make/command">make test</code>
-- run TypeScript transpiler: <code type="make/command">make build</code> or
-  `make`
-- run the linters: <code type="make/command">make lint</code>
 - run the unit tests: <code type="make/command">make unit</code>
+- run the linters: <code type="make/command">make lint</code>
 - fix the auto-fixable issues: <code type="make/command">make fix</code>
 
-Validate GraphQL schemata:
+Validate the GraphQL schemata:
 
 ```bash
 graphql-inspector \
@@ -35,11 +34,12 @@ graphql-inspector \
 
 ### Deployment
 
-Support for running on Heroku is built in. To deploy the current branch to
-production, run <code type="make/command">make deploy</code> inside this
-directory.
+The current codebase has built-in support for running on Heroku. To deploy the
+current branch to production, run <code type="make/command">make deploy</code>
+inside this directory.
 
 ### DevOps
 
 - this code base uses GitHubOps: production incidents get filed as GitHub
   tickets at https://github.com/kevgo/prettifier/issues
+- see the server logs: <code type="make/command">make logs</code>
