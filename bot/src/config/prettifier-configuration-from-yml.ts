@@ -11,7 +11,11 @@ export function prettifierConfigFromYML(configText: string, prettierIgnore: stri
   try {
     parsed = yml.safeLoad(configText)
   } catch (e) {
-    throw new UserError(`Prettifier configuration is not valid YML format:\n${configText}`, e)
+    throw new UserError(
+      `Prettifier configuration is not valid YML`,
+      `File \`.github/prettifier.yml\` contains this invalid content:\n\n\`\`\`\n${configText}\n\`\`\`\n`,
+      e
+    )
   }
   return new PrettifierConfiguration(parsed, prettierIgnore)
 }

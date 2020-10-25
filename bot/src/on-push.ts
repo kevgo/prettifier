@@ -14,9 +14,7 @@ import { DevError, logDevError } from "./logging/dev-error"
 import { concatToSet, removeAllFromSet } from "./helpers/set-tools"
 import { prettifierConfigFromYML } from "./config/prettifier-configuration-from-yml"
 import { prettierConfigFromYML } from "./prettier/prettier-config-from-yml"
-import { PrettifierConfiguration } from "./config/prettifier-configuration"
 import { loadPushContextData, PushContextData } from "./github/load-push-context-data"
-import prettier from "prettier"
 import { UserError, logUserError } from "./logging/user-error"
 
 /** called when this bot gets notified about a push on Github */
@@ -60,13 +58,12 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
       console.log(`${repoPrefix}: CAN'T LOAD PUSH CONTEXT:`, e)
       return
     }
-    const pushContext = parsePushContextData(pushContextData)
-    const prettifierConfig = pushContext.prettifierConfig
+    pullRequestNumber = pushContextData.pullRequestNumber
+    pullRequestId = pushContextData.pullRequestId
+    const prettifierConfig = prettifierConfigFromYML(pushContextData.prettifierConfig, pushContextData.prettierIgnore)
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(prettifierConfig)}`)
-    const prettierConfig = pushContext.prettierConfig
+    const prettierConfig = prettierConfigFromYML(pushContextData.prettierConfig)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(prettierConfig)}`)
-    pullRequestNumber = pushContext.pullRequestNumber
-    pullRequestId = pushContext.pullRequestId
 
     // check whether this branch should be ignored
     if (prettifierConfig.shouldIgnoreBranch(branch)) {
@@ -242,27 +239,10 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
       return
     }
     if (e instanceof UserError) {
+      e.enrich(errorContext)
       logUserError(e, context.github)
       return
     }
     logDevError(e, context.github)
-  }
-}
-
-interface PushContext {
-  prettifierConfig: PrettifierConfiguration
-  prettierConfig: prettier.Options
-  pullRequestId: string
-  pullRequestNumber: number
-  pullRequestURL: string
-}
-
-export function parsePushContextData(data: PushContextData): PushContext {
-  return {
-    prettifierConfig: prettifierConfigFromYML(data.prettifierConfig, data.prettierIgnore),
-    prettierConfig: prettierConfigFromYML(data.prettierConfig),
-    pullRequestId: data.pullRequestId,
-    pullRequestNumber: data.pullRequestNumber,
-    pullRequestURL: data.pullRequestURL,
   }
 }

@@ -7,6 +7,10 @@ export function prettierConfigFromYML(configText: string): prettier.Options {
   try {
     return yml.safeLoad(configText) || {}
   } catch (e) {
-    throw new UserError("invalid content in file '.prettierrc'", e)
+    throw new UserError(
+      'invalid content in file `.prettierrc`',
+      `\`\`\`\n${configText}\n\`\`\`\n`,
+      e
+    )
   }
 }

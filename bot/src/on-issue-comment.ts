@@ -3,6 +3,7 @@ import webhooks from "@octokit/webhooks"
 import { addComment } from "./github/add-comment"
 import { DevError, logDevError } from "./logging/dev-error"
 import { firstLineWithPill } from "./helpers/string-tools"
+import { logUserError, UserError } from "./logging/user-error"
 
 const commandRE = /^\/([\w]+)\b *(.*)?$/
 
@@ -60,7 +61,15 @@ export function onIssueComment(context: probot.Context<webhooks.WebhookPayloadIs
         return
       case "user error":
         console.log(`${repoPrefix}: SIMULATING USER ERROR`)
-        // TODO
+        logUserError(
+          new UserError(
+            "simulated activity",
+            `This is a simulated user error that you have requested by commenting "${issueText}".`,
+            new Error("underlying error"),
+            { org, repo, issueID, issueNr }
+          ),
+          github
+        )
         return
       case undefined:
         console.log(`${repoPrefix}: MISSING COMMAND`)

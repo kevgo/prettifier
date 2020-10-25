@@ -195,6 +195,7 @@ export async function onPullRequest(context: probot.Context<webhooks.WebhookPayl
       repo,
       branch,
       pullRequestURL,
+      pullRequestId,
       payload: context.payload,
     }
     if (e instanceof UserError) {
