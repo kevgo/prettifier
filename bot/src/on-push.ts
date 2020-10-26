@@ -31,6 +31,10 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
   let prettierConfig: prettier.Options = {}
   let prettifierConfig: PrettifierConfiguration = new PrettifierConfiguration({}, "")
   let prettierIgnore = ""
+  const changedFiles = new Set<string>()
+  const prettifiedFiles = []
+  let currentFile = ""
+  let prettierConfigForFile: prettier.Options = {}
   try {
     org = context.payload.repository.owner.login
     repo = context.payload.repository.name
@@ -87,7 +91,6 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
     }
 
     // find all changed files
-    const changedFiles = new Set<string>()
     for (const commit of context.payload.commits) {
       concatToSet(changedFiles, commit.added)
       concatToSet(changedFiles, commit.modified)
@@ -95,16 +98,15 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
     }
 
     // prettify all changed files
-    const prettifiedFiles = []
     let i = 0
-    for (const file of changedFiles) {
+    for (currentFile of changedFiles) {
       i++
-      const filePrefix = `${repoPrefix}: FILE ${i}/${changedFiles.size} (${file})`
+      const filePrefix = `${repoPrefix}: FILE ${i}/${changedFiles.size} (${currentFile})`
 
       // ignore non-prettifiable files
       let allowed = false
       try {
-        allowed = await prettifierConfig.shouldPrettify(file)
+        allowed = await prettifierConfig.shouldPrettify(currentFile)
       } catch (e) {
         if (e instanceof LoggedError) {
           continue
@@ -119,7 +121,7 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
       // load the file content
       let fileContent = ""
       try {
-        fileContent = await loadFile(org, repo, branch, file, context.github)
+        fileContent = await loadFile(org, repo, branch, currentFile, context.github)
       } catch (e) {
         if (e instanceof RequestError) {
           const requestError = e as RequestError
@@ -136,8 +138,8 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
       }
 
       // prettify the file
-      const prettierConfigForFile = applyPrettierConfigOverrides(prettierConfig, file)
-      const formatted = prettify(fileContent, file, prettierConfigForFile)
+      prettierConfigForFile = applyPrettierConfigOverrides(prettierConfig, currentFile)
+      const formatted = prettify(fileContent, currentFile, prettierConfigForFile)
 
       // ignore if there are no changes
       if (formatted === fileContent) {
@@ -146,7 +148,7 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
       }
 
       // store the prettified content
-      prettifiedFiles.push({ path: file, content: formatted })
+      prettifiedFiles.push({ path: currentFile, content: formatted })
       console.log(`${filePrefix} - PRETTIFYING`)
     }
 
@@ -241,6 +243,10 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
       prettierConfig,
       prettifierConfig,
       prettierIgnore,
+      changedFiles,
+      prettifiedFiles,
+      currentFile,
+      prettierConfigForFile,
     }
     if (e instanceof DevError) {
       e.enrich(errorContext)
