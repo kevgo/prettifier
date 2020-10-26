@@ -11,7 +11,7 @@ import { DevError, logDevError } from "./logging/dev-error"
 import { LoggedError } from "./logging/logged-error"
 import { RequestError } from "@octokit/request-error"
 import { isConfigurationFile } from "./config/is-configuration-file"
-import { prettierConfigFromYML } from "./prettier/prettier-config-from-yml"
+import { getPrettierConfig } from "./prettier/config"
 import { loadPullRequestContextData } from "./github/load-pull-request-context-data"
 import { UserError, logUserError } from "./logging/user-error"
 import * as prettier from "prettier"
@@ -54,7 +54,7 @@ export async function onPullRequest(
       pullRequestContextData.prettierIgnore
     )
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(prettifierConfig)}`)
-    prettierConfig = prettierConfigFromYML(pullRequestContextData.prettierConfig)
+    prettierConfig = getPrettierConfig(pullRequestContextData)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(prettierConfig)}`)
     prettierIgnore = pullRequestContextData.prettierIgnore
     console.log(`${repoPrefix}: PRETTIER IGNORE: ${JSON.stringify(prettierIgnore)}`)

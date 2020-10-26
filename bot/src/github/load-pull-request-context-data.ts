@@ -1,12 +1,16 @@
 import { ProbotOctokit } from "probot"
 import { promises as fs } from "fs"
 import path from "path"
+import { PrettierConfigResult } from "../prettier/config"
 
-export interface PullRequestContextData {
+/** fields unique to pull request contexts */
+interface PullRequestContextUnique {
   prettifierConfig: string
-  prettierConfig: string
   prettierIgnore: string
 }
+
+/** the payload of loading additional pull request data via the GraphQL API */
+export type PullRequestContextData = PullRequestContextUnique & PrettierConfigResult
 
 export async function loadPullRequestContextData(
   org: string,
@@ -19,7 +23,10 @@ export async function loadPullRequestContextData(
   const callResult: any = await github.graphql(query, { org, repo, branch })
   return {
     prettifierConfig: callResult?.repository.prettifierConfig?.text || "",
-    prettierConfig: callResult?.repository.prettierConfig?.text || "",
+    prettierrc: callResult?.repository.prettierrc?.text || "",
+    prettierrc_json: callResult?.repository.prettierrc_json?.text || "",
+    prettierrc_yml: callResult?.repository.prettierrc_yml?.text || "",
+    prettierrc_yaml: callResult?.repository.prettierrc_yaml?.text || "",
     prettierIgnore: callResult?.repository.prettierIgnore?.text || "",
   }
 }

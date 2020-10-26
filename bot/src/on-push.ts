@@ -12,11 +12,11 @@ import { LoggedError } from "./logging/logged-error"
 import { loadFile } from "./github/load-file"
 import { DevError, logDevError } from "./logging/dev-error"
 import { concatToSet, removeAllFromSet } from "./helpers/set-tools"
-import { prettierConfigFromYML } from "./prettier/prettier-config-from-yml"
 import { loadPushContextData, PushContextData } from "./github/load-push-context-data"
 import { UserError, logUserError } from "./logging/user-error"
 import * as prettier from "prettier"
 import { PrettifierConfiguration } from "./config/prettifier-configuration"
+import { getPrettierConfig } from "./prettier/config"
 
 /** called when this bot gets notified about a push on Github */
 export async function onPush(context: probot.Context<webhooks.EventPayloads.WebhookPayloadPush>): Promise<void> {
@@ -71,7 +71,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     prettierIgnore = pushContextData.prettierIgnore
     prettifierConfig = PrettifierConfiguration.fromYML(pushContextData.prettifierConfig, prettierIgnore)
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(prettifierConfig)}`)
-    prettierConfig = prettierConfigFromYML(pushContextData.prettierConfig)
+    prettierConfig = getPrettierConfig(pushContextData)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(prettierConfig)}`)
 
     // check whether this branch should be ignored

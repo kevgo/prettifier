@@ -6,7 +6,22 @@ query OnPullRequest($org: String!, $repo: String!) {
         text
       }
     }
-    prettierConfig: object(expression: "{{branch}}:.prettierrc") {
+    prettierrc: object(expression: "{{branch}}:.prettierrc") {
+      ... on Blob {
+        text
+      }
+    }
+    prettierrc_json: object(expression: "{{branch}}:.prettierrc.json") {
+      ... on Blob {
+        text
+      }
+    }
+    prettierrc_yml: object(expression: "{{branch}}:.prettierrc.yml") {
+      ... on Blob {
+        text
+      }
+    }
+    prettierrc_yaml: object(expression: "{{branch}}:.prettierrc.yaml") {
       ... on Blob {
         text
       }

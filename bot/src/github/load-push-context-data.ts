@@ -2,15 +2,19 @@ import { ProbotOctokit } from "probot"
 import { promises as fs } from "fs"
 import { DevError } from "../logging/dev-error"
 import path from "path"
+import { PrettierConfigResult } from "../prettier/config"
 
-export interface PushContextData {
+/** fields unique to push contexts */
+interface PushContextUnique {
   prettifierConfig: string
-  prettierConfig: string
   prettierIgnore: string
   pullRequestNumber: number
   pullRequestId: string
   pullRequestURL: string
 }
+
+/** the payload of loading additional push data via the GraphQL API */
+export type PushContextData = PushContextUnique & PrettierConfigResult
 
 export async function loadPushContextData(
   org: string,
@@ -37,7 +41,10 @@ export async function loadPushContextData(
 
   return {
     prettifierConfig: callResult?.repository.prettifierConfig?.text || "",
-    prettierConfig: callResult?.repository.prettierConfig?.text || "",
+    prettierrc: callResult?.repository.prettierrc?.text || "",
+    prettierrc_json: callResult?.repository.prettierrc_json?.text || "",
+    prettierrc_yml: callResult?.repository.prettierrc_yml?.text || "",
+    prettierrc_yaml: callResult?.repository.prettierrc_yaml?.text || "",
     prettierIgnore: callResult?.repository.prettierIgnore?.text || "",
     pullRequestNumber,
     pullRequestId,
