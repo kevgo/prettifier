@@ -37,6 +37,7 @@ stats:  # shows code statistics
 	find . -type f | grep -v '\./node_modules/' | grep -v '\./dist/' | xargs cloc
 
 test:  # runs all tests
+	${CURDIR}/node_modules/.bin/tsc -p tsconfig-build.json &
 	${CURDIR}/node_modules/.bin/eslint . --ext .ts &
 	${CURDIR}/node_modules/.bin/prettier --list-different --ignore-path=../.prettierignore . &
 	${CURDIR}/node_modules/.bin/mocha src/**/*.test.ts --reporter dot
