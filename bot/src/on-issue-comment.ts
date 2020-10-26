@@ -53,7 +53,10 @@ export function onIssueComment(context: probot.Context<webhooks.WebhookPayloadIs
         return
       case "dev error":
         console.log(`${repoPrefix}: SIMULATING DEV ERROR`)
-        // TODO
+        logDevError(
+          new DevError("simulated error", new Error("underlying error"), { org, repo, issueID, issueNr }),
+          github
+        )
         return
       case "help":
         console.log(`${repoPrefix}: HELP COMMAND`)

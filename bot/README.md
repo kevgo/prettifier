@@ -16,7 +16,7 @@ Run <code type="make/command">make setup</code>.
 Use [GitHub's API explorer](https://developer.github.com/v4/explorer) to play
 with GitHub's GraphQL API.
 
-### Local testing
+### Testing
 
 - compile the code: <code type="make/command">make build</code> or `make`
 - run all tests: <code type="make/command">make test</code>
@@ -32,6 +32,16 @@ graphql-inspector \
     validate './src/github/*.graphql' https://api.github.com/graphql
 ```
 
+The [DevOps](#devops) section describes how to access the server logs to debug
+production issues. This bot also understands bot commands that help debug error
+reporting:
+
+- comment `/prettifier user error` inside a pull request or issue to see how a
+  user error would look like
+- comment `/prettifier dev error` inside an issue to see how Prettifier would
+  report a bug
+- comment `/prettifier help` to see a list of all available bot commands
+
 ### Deployment
 
 The current codebase has built-in support for running on Heroku. To deploy the
@@ -40,6 +50,7 @@ inside this directory.
 
 ### DevOps
 
+- see the server logs: <code type="make/command">make logs</code> (needs the
+  [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli))
 - this code base uses GitHubOps: production incidents get filed as GitHub
   tickets at https://github.com/kevgo/prettifier/issues
-- see the server logs: <code type="make/command">make logs</code>
