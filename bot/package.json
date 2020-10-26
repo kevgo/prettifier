@@ -5,6 +5,7 @@
   "private": "true",
   "author": "Kevin Goslar <kevin.goslar@gmail.com>",
   "dependencies": {
+    "@iarna/toml": "2.2.5",
     "@octokit/request-error": "2.0.2",
     "@octokit/rest": "18.0.6",
     "@types/mustache": "4.0.1",

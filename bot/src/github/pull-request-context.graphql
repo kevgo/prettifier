@@ -16,6 +16,11 @@ query OnPullRequest($org: String!, $repo: String!) {
         text
       }
     }
+    prettierrc_toml: object(expression: "{{branch}}:.prettierrc.toml") {
+      ... on Blob {
+        text
+      }
+    }
     prettierrc_yml: object(expression: "{{branch}}:.prettierrc.yml") {
       ... on Blob {
         text

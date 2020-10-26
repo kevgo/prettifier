@@ -1,6 +1,6 @@
 ---
 title: Verification
-weight: 60
+weight: 70
 ---
 
 To make sure any changes you make to the Prettifier configuration are correct,

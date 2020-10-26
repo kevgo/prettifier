@@ -1,6 +1,6 @@
 ---
 title: Exclude Files
-weight: 40
+weight: 50
 ---
 
 The best way to not auto-format particular files, directories, or parts of files

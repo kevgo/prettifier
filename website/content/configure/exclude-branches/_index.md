@@ -1,6 +1,6 @@
 ---
 title: Exclude Branches
-weight: 30
+weight: 40
 ---
 
 To make Prettifier ignore certain branches, add an `excludeBranches` entry to

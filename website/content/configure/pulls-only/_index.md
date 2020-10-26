@@ -1,6 +1,6 @@
 ---
 title: Pull Requests Only
-weight: 50
+weight: 60
 ---
 
 To enable pull [Pull Requests Only

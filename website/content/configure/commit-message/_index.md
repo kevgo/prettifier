@@ -1,6 +1,6 @@
 ---
 title: Commit Message
-weight: 10
+weight: 20
 ---
 
 To customize the commit message that Prettifier uses to submit comments, add

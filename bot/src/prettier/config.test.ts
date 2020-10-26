@@ -31,6 +31,16 @@ suite("getPrettierConfig", function () {
     const give = scaffoldPushContextData({ prettierrc_json: `{ "semi` })
     assert.throws(() => getPrettierConfig(give), UserError)
   })
+  test("prettierrc_toml with valid content", function () {
+    const give = scaffoldPushContextData({ prettierrc_toml: `semi = false` })
+    const have = getPrettierConfig(give)
+    const want = { semi: false }
+    assert.deepEqual(have, want)
+  })
+  test("prettierrc_toml with invalid content", function () {
+    const give = scaffoldPushContextData({ prettierrc_toml: `{ semi =` })
+    assert.throws(() => getPrettierConfig(give), UserError)
+  })
   test("prettierrc_yml with valid content", function () {
     const give = scaffoldPushContextData({ prettierrc_yml: `semi: false` })
     const have = getPrettierConfig(give)
@@ -94,6 +104,7 @@ function scaffoldPushContextData(testData: Partial<PushContextData> = {}): PushC
     prettierIgnore: "",
     prettierrc: "",
     prettierrc_json: "",
+    prettierrc_toml: "",
     prettierrc_yaml: "",
     prettierrc_yml: "",
     prettifierConfig: "",

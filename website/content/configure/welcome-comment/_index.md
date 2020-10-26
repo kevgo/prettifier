@@ -1,6 +1,6 @@
 ---
 title: Welcome Comments
-weight: 20
+weight: 30
 ---
 
 [Welcome Comments](/learn/welcome-comments) are disabled by default. To enable
