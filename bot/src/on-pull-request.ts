@@ -185,6 +185,10 @@ export async function onPullRequest(
               return
             }
           }
+          if (requestError.status === 404) {
+            // branch was deleted --> ignore
+            return
+          }
         }
         throw new DevError("creating a commit on a freshly opened pull request", e)
       }
