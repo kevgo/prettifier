@@ -1,5 +1,6 @@
 import { assert } from "chai"
 import { PrettifierConfiguration } from "./prettifier-configuration"
+import { UserError } from "../logging/user-error"
 
 suite("PrettifierConfiguration.shouldIgnoreBranch")
 
@@ -82,4 +83,31 @@ test("single name given", async function () {
 test("nothing given", async function () {
   const config = new PrettifierConfiguration({}, "")
   assert.deepEqual(config.excludeFiles, ["package-lock.json"])
+})
+
+suite("prettifierConfigFromYML")
+
+test("empty", function () {
+  const actual = PrettifierConfiguration.fromYML("", "")
+  assert.isNotNull(actual)
+  assert.instanceOf(actual, PrettifierConfiguration)
+  assert.deepEqual(actual.excludeBranches, ["node_modules"])
+})
+
+test("excludeBranches in prettifier.yml", function () {
+  const actual = PrettifierConfiguration.fromYML("excludeBranches: dist", "")
+  assert.isNotNull(actual)
+  assert.instanceOf(actual, PrettifierConfiguration)
+  assert.deepEqual(actual.excludeBranches, ["dist"])
+})
+
+test(".prettierignore", async function () {
+  const config = PrettifierConfiguration.fromYML("", "dist/")
+  assert.isFalse(await config.shouldPrettify("dist/foo.md"))
+})
+
+test("invalid", function () {
+  assert.throws(function () {
+    PrettifierConfiguration.fromYML("'wrong", "")
+  }, UserError)
 })

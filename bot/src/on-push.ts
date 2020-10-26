@@ -12,7 +12,6 @@ import { LoggedError } from "./logging/logged-error"
 import { loadFile } from "./github/load-file"
 import { DevError, logDevError } from "./logging/dev-error"
 import { concatToSet, removeAllFromSet } from "./helpers/set-tools"
-import { prettifierConfigFromYML } from "./config/prettifier-configuration-from-yml"
 import { prettierConfigFromYML } from "./prettier/prettier-config-from-yml"
 import { loadPushContextData, PushContextData } from "./github/load-push-context-data"
 import { UserError, logUserError } from "./logging/user-error"
@@ -70,7 +69,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     pullRequestNumber = pushContextData.pullRequestNumber
     pullRequestId = pushContextData.pullRequestId
     prettierIgnore = pushContextData.prettierIgnore
-    prettifierConfig = prettifierConfigFromYML(pushContextData.prettifierConfig, prettierIgnore)
+    prettifierConfig = PrettifierConfiguration.fromYML(pushContextData.prettifierConfig, prettierIgnore)
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(prettifierConfig)}`)
     prettierConfig = prettierConfigFromYML(pushContextData.prettierConfig)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(prettierConfig)}`)

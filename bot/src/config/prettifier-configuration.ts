@@ -2,6 +2,8 @@ import ignore, { Ignore } from "ignore"
 import prettier from "prettier"
 import { promises as fs } from "fs"
 import path from "path"
+import yml from "js-yaml"
+import { UserError } from "../logging/user-error"
 
 /** ConfigOptions defines the configuration options that users can provide. */
 interface ConfigOptions {
@@ -59,6 +61,24 @@ export class PrettifierConfiguration {
     this.customForkComment = providedConfig.forkComment ?? ""
     this.ignore = ignore().add(this.excludeFiles).add(prettierIgnore)
     this.pullsOnly = providedConfig.pullsOnly ?? false
+  }
+
+  /** provides a PrettifierConfiguration instance populated with the values in the given YML file */
+  static fromYML(configText: string, prettierIgnore: string): PrettifierConfiguration {
+    if (configText.trim() === "") {
+      return new PrettifierConfiguration({}, prettierIgnore)
+    }
+    let parsed = {}
+    try {
+      parsed = yml.safeLoad(configText) as Record<string, unknown>
+    } catch (e) {
+      throw new UserError(
+        `Prettifier configuration is not valid YML`,
+        `File \`.github/prettifier.yml\` contains this invalid content:\n\n\`\`\`\n${configText}\n\`\`\`\n`,
+        e
+      )
+    }
+    return new PrettifierConfiguration(parsed, prettierIgnore)
   }
 
   async forkComment(): Promise<string> {

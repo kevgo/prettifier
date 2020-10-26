@@ -12,7 +12,6 @@ import { LoggedError } from "./logging/logged-error"
 import { RequestError } from "@octokit/request-error"
 import { isConfigurationFile } from "./config/is-configuration-file"
 import { prettierConfigFromYML } from "./prettier/prettier-config-from-yml"
-import { prettifierConfigFromYML } from "./config/prettifier-configuration-from-yml"
 import { loadPullRequestContextData } from "./github/load-pull-request-context-data"
 import { UserError, logUserError } from "./logging/user-error"
 import * as prettier from "prettier"
@@ -50,7 +49,7 @@ export async function onPullRequest(
 
     // load additional information from GitHub
     const pullRequestContextData = await loadPullRequestContextData(org, repo, branch, context.github)
-    prettifierConfig = prettifierConfigFromYML(
+    prettifierConfig = PrettifierConfiguration.fromYML(
       pullRequestContextData.prettifierConfig,
       pullRequestContextData.prettierIgnore
     )
