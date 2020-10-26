@@ -113,7 +113,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
         throw e
       }
       if (!allowed) {
-        console.log(`${filePrefix} - NON-PRETTIFYABLE`)
+        console.log(`${filePrefix} - NOT PRETTIFYABLE OR IGNORED`)
         continue
       }
 
