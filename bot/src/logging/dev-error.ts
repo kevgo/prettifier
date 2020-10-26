@@ -1,6 +1,6 @@
 import util from "util"
-import { ProbotOctokit } from "probot"
 import { Context } from "./context"
+import { Octokit } from "@octokit/rest"
 
 /** DevError incidates a Prettifier bug */
 export class DevError extends Error {
@@ -20,11 +20,12 @@ export class DevError extends Error {
 }
 
 /** logs the given developer error as a GitHub issue */
-export async function logDevError(err: DevError, github: InstanceType<typeof ProbotOctokit>): Promise<void> {
+export async function logDevError(err: DevError): Promise<void> {
   console.log(`${err.context.org}|${err.context.repo}: DevError ${err.message}`)
-  await github.issues.create({
+  const opsGithub = new Octokit({ auth: process.env.GITHUBOPS_TOKEN })
+  await opsGithub.issues.create({
     owner: "kevgo",
-    repo: "prettifier",
+    repo: "prettifier-ops",
     title: `Bug report: ${err.message}`,
     body: bodyTemplate(err),
   })

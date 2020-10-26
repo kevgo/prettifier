@@ -53,10 +53,7 @@ export function onIssueComment(context: probot.Context<webhooks.EventPayloads.We
         return
       case "dev error":
         console.log(`${repoPrefix}: SIMULATING DEV ERROR`)
-        logDevError(
-          new DevError("simulated error", new Error("underlying error"), { org, repo, issueID, issueNr }),
-          github
-        )
+        logDevError(new DevError("simulated error", new Error("underlying error"), { org, repo, issueID, issueNr }))
         return
       case "help":
         console.log(`${repoPrefix}: HELP COMMAND`)
@@ -86,7 +83,7 @@ export function onIssueComment(context: probot.Context<webhooks.EventPayloads.We
     console.log(`${repoPrefix}: ${e}`)
     if (github) {
       const devErr = new DevError(e.message, e, { org, repo, issueNr, issueID })
-      logDevError(devErr, github)
+      logDevError(devErr)
     }
   }
 }

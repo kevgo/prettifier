@@ -249,7 +249,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     }
     if (e instanceof DevError) {
       e.enrich(errorContext)
-      logDevError(e, context.github)
+      logDevError(e)
       return
     }
     if (e instanceof UserError) {
@@ -257,6 +257,6 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       logUserError(e, context.github)
       return
     }
-    logDevError(e, context.github)
+    logDevError(e)
   }
 }

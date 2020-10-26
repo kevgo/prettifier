@@ -226,9 +226,9 @@ export async function onPullRequest(
     }
     if (e instanceof DevError) {
       e.enrich(errorContext)
-      logDevError(e, context.github)
+      logDevError(e)
       return
     }
-    logDevError(new DevError("unknown dev error", e, errorContext), context.github)
+    logDevError(new DevError("unknown dev error", e, errorContext))
   }
 }
