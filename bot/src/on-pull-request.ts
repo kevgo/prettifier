@@ -15,6 +15,8 @@ import { prettierConfigFromYML } from "./prettier/prettier-config-from-yml"
 import { prettifierConfigFromYML } from "./config/prettifier-configuration-from-yml"
 import { loadPullRequestContextData } from "./github/load-pull-request-context-data"
 import { UserError, logUserError } from "./logging/user-error"
+import * as prettier from "prettier"
+import { PrettifierConfiguration } from "./config/prettifier-configuration"
 
 /** called when this bot gets notified about a new pull request */
 export async function onPullRequest(context: probot.Context<webhooks.WebhookPayloadPullRequest>): Promise<void> {
@@ -25,6 +27,9 @@ export async function onPullRequest(context: probot.Context<webhooks.WebhookPayl
   let pullRequestNumber = 0
   let pullRequestId = ""
   let pullRequestURL = ""
+  let prettierConfig: prettier.Options = {}
+  let prettifierConfig: PrettifierConfiguration = new PrettifierConfiguration({}, "")
+  let prettierIgnore = ""
   try {
     org = context.payload.repository.owner.login
     headOrg = context.payload.pull_request.head.repo.owner.login
@@ -43,14 +48,14 @@ export async function onPullRequest(context: probot.Context<webhooks.WebhookPayl
 
     // load additional information from GitHub
     const pullRequestContextData = await loadPullRequestContextData(org, repo, branch, context.github)
-    const prettifierConfig = prettifierConfigFromYML(
+    prettifierConfig = prettifierConfigFromYML(
       pullRequestContextData.prettifierConfig,
       pullRequestContextData.prettierIgnore
     )
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(prettifierConfig)}`)
-    const prettierConfig = prettierConfigFromYML(pullRequestContextData.prettierConfig)
+    prettierConfig = prettierConfigFromYML(pullRequestContextData.prettierConfig)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(prettierConfig)}`)
-    const prettierIgnore = pullRequestContextData.prettierIgnore
+    prettierIgnore = pullRequestContextData.prettierIgnore
     console.log(`${repoPrefix}: PRETTIER IGNORE: ${JSON.stringify(prettierIgnore)}`)
 
     // check whether this branch should be ignored
@@ -200,6 +205,9 @@ export async function onPullRequest(context: probot.Context<webhooks.WebhookPayl
       pullRequestURL,
       pullRequestId,
       payload: context.payload,
+      prettierConfig,
+      prettifierConfig,
+      prettierIgnore,
     }
     if (e instanceof UserError) {
       e.enrich(errorContext)

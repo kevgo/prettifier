@@ -16,6 +16,8 @@ import { prettifierConfigFromYML } from "./config/prettifier-configuration-from-
 import { prettierConfigFromYML } from "./prettier/prettier-config-from-yml"
 import { loadPushContextData, PushContextData } from "./github/load-push-context-data"
 import { UserError, logUserError } from "./logging/user-error"
+import * as prettier from "prettier"
+import { PrettifierConfiguration } from "./config/prettifier-configuration"
 
 /** called when this bot gets notified about a push on Github */
 export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush>): Promise<void> {
@@ -26,6 +28,9 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
   let commitSha = ""
   let pullRequestNumber = 0
   let pullRequestId = ""
+  let prettierConfig: prettier.Options = {}
+  let prettifierConfig: PrettifierConfiguration = new PrettifierConfiguration({}, "")
+  let prettierIgnore = ""
   try {
     org = context.payload.repository.owner.login
     repo = context.payload.repository.name
@@ -60,9 +65,10 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
     }
     pullRequestNumber = pushContextData.pullRequestNumber
     pullRequestId = pushContextData.pullRequestId
-    const prettifierConfig = prettifierConfigFromYML(pushContextData.prettifierConfig, pushContextData.prettierIgnore)
+    prettierIgnore = pushContextData.prettierIgnore
+    prettifierConfig = prettifierConfigFromYML(pushContextData.prettifierConfig, prettierIgnore)
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(prettifierConfig)}`)
-    const prettierConfig = prettierConfigFromYML(pushContextData.prettierConfig)
+    prettierConfig = prettierConfigFromYML(pushContextData.prettierConfig)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(prettierConfig)}`)
 
     // check whether this branch should be ignored
@@ -232,6 +238,9 @@ export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush
       pullRequestId,
       pullRequestNumber,
       payload: context.payload,
+      prettierConfig,
+      prettifierConfig,
+      prettierIgnore,
     }
     if (e instanceof DevError) {
       e.enrich(errorContext)
