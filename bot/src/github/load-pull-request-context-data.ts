@@ -25,6 +25,7 @@ export async function loadPullRequestContextData(
     prettifierConfig: callResult?.repository.prettifierConfig?.text || "",
     prettierrc: callResult?.repository.prettierrc?.text || "",
     prettierrc_json: callResult?.repository.prettierrc_json?.text || "",
+    prettierrc_json5: callResult?.repository.prettierrc_json5?.text || "",
     prettierrc_toml: callResult?.repository.prettierrc_toml?.text || "",
     prettierrc_yml: callResult?.repository.prettierrc_yml?.text || "",
     prettierrc_yaml: callResult?.repository.prettierrc_yaml?.text || "",

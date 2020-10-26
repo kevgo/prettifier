@@ -1,4 +1,4 @@
-import { getPrettierConfig, prettierConfigFromJSON, prettierConfigFromYML } from "./config"
+import { getPrettierConfig, prettierConfigFromJSON5, prettierConfigFromYML } from "./config"
 import { assert } from "chai"
 import { UserError } from "../logging/user-error"
 import { PushContextData } from "../github/load-push-context-data"
@@ -9,17 +9,21 @@ suite("getPrettierConfig", function () {
     const have = getPrettierConfig(give)
     assert.deepEqual(have, {})
   })
-  test("prettierrc with JSON content", function () {
+  test("prettierrc with valid JSON content", function () {
     const give = scaffoldPushContextData({ prettierrc: `{ "semi": false }` })
     const have = getPrettierConfig(give)
     const want = { semi: false }
     assert.deepEqual(have, want)
   })
-  test("prettierrc with YML content", function () {
+  test("prettierrc with valid YML content", function () {
     const give = scaffoldPushContextData({ prettierrc: `semi: false` })
     const have = getPrettierConfig(give)
     const want = { semi: false }
     assert.deepEqual(have, want)
+  })
+  test("prettierrc with invalid content", function () {
+    const give = scaffoldPushContextData({ prettierrc: `{ "semi` })
+    assert.throws(() => getPrettierConfig(give), UserError)
   })
   test("prettierrc_json with valid content", function () {
     const give = scaffoldPushContextData({ prettierrc_json: `{ "semi": false }` })
@@ -29,6 +33,16 @@ suite("getPrettierConfig", function () {
   })
   test("prettierrc_json with invalid content", function () {
     const give = scaffoldPushContextData({ prettierrc_json: `{ "semi` })
+    assert.throws(() => getPrettierConfig(give), UserError)
+  })
+  test("prettierrc_json5 with valid content", function () {
+    const give = scaffoldPushContextData({ prettierrc_json5: `{ 'semi': false \n // comment\n }` })
+    const have = getPrettierConfig(give)
+    const want = { semi: false }
+    assert.deepEqual(have, want)
+  })
+  test("prettierrc_json5 with invalid content", function () {
+    const give = scaffoldPushContextData({ prettierrc_json5: `{ "semi` })
     assert.throws(() => getPrettierConfig(give), UserError)
   })
   test("prettierrc_toml with valid content", function () {
@@ -81,20 +95,20 @@ suite("prettierConfigFromYML", function () {
   })
 })
 
-suite("prettierConfigFromJSON", function () {
+suite("prettierConfigFromJSON5", function () {
   test("empty", function () {
-    const actual = prettierConfigFromJSON("")
+    const actual = prettierConfigFromJSON5("")
     assert.deepEqual(actual, {})
   })
 
   test("valid content", function () {
-    const actual = prettierConfigFromJSON(`{ "semi": false }`)
+    const actual = prettierConfigFromJSON5(`{ "semi": false }`)
     assert.deepEqual(actual, { semi: false })
   })
 
   test("invalid content", function () {
     assert.throws(function () {
-      prettierConfigFromJSON("'wrong")
+      prettierConfigFromJSON5("'wrong")
     }, UserError)
   })
 })
@@ -104,6 +118,7 @@ function scaffoldPushContextData(testData: Partial<PushContextData> = {}): PushC
     prettierIgnore: "",
     prettierrc: "",
     prettierrc_json: "",
+    prettierrc_json5: "",
     prettierrc_toml: "",
     prettierrc_yaml: "",
     prettierrc_yml: "",
