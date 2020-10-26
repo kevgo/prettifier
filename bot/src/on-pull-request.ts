@@ -13,9 +13,7 @@ import { RequestError } from "@octokit/request-error"
 import { isConfigurationFile } from "./config/is-configuration-file"
 import { prettierConfigFromYML } from "./prettier/prettier-config-from-yml"
 import { prettifierConfigFromYML } from "./config/prettifier-configuration-from-yml"
-import { PrettifierConfiguration } from "./config/prettifier-configuration"
-import { PullRequestContextData, loadPullRequestContextData } from "./github/load-pull-request-context-data"
-import prettier from "prettier"
+import { loadPullRequestContextData } from "./github/load-pull-request-context-data"
 import { UserError, logUserError } from "./logging/user-error"
 
 /** called when this bot gets notified about a new pull request */
@@ -45,9 +43,14 @@ export async function onPullRequest(context: probot.Context<webhooks.WebhookPayl
 
     // load additional information from GitHub
     const pullRequestContextData = await loadPullRequestContextData(org, repo, branch, context.github)
-    const { prettifierConfig, prettierConfig, prettierIgnore } = parsePullRequestContextData(pullRequestContextData)
+    const prettifierConfig = prettifierConfigFromYML(
+      pullRequestContextData.prettifierConfig,
+      pullRequestContextData.prettierIgnore
+    )
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(prettifierConfig)}`)
+    const prettierConfig = prettierConfigFromYML(pullRequestContextData.prettierConfig)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(prettierConfig)}`)
+    const prettierIgnore = pullRequestContextData.prettierIgnore
     console.log(`${repoPrefix}: PRETTIER IGNORE: ${JSON.stringify(prettierIgnore)}`)
 
     // check whether this branch should be ignored
@@ -210,16 +213,4 @@ export async function onPullRequest(context: probot.Context<webhooks.WebhookPayl
     }
     logDevError(new DevError("unknown dev error", e, errorContext), context.github)
   }
-}
-
-interface PullRequestContext {
-  prettifierConfig: PrettifierConfiguration
-  prettierConfig: prettier.Options
-  prettierIgnore: string
-}
-
-export function parsePullRequestContextData(data: PullRequestContextData): PullRequestContext {
-  const prettifierConfig = prettifierConfigFromYML(data.prettifierConfig, data.prettierIgnore)
-  const prettierConfig = prettierConfigFromYML(data.prettierConfig)
-  return { prettifierConfig, prettierConfig, prettierIgnore: data.prettierIgnore }
 }
