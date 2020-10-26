@@ -6,6 +6,11 @@ query OnPullRequest($org: String!, $repo: String!) {
         text
       }
     }
+    package_json: object(expression: "{{branch}}:package.json") {
+      ... on Blob {
+        text
+      }
+    }
     prettierrc: object(expression: "{{branch}}:.prettierrc") {
       ... on Blob {
         text

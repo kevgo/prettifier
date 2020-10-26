@@ -5,6 +5,7 @@ import * as TOML from "@iarna/toml"
 import * as JSON5 from "json5"
 
 export interface PrettierConfigResult {
+  package_json: string
   prettierrc: string
   prettierrc_json: string
   prettierrc_json5: string
@@ -27,6 +28,8 @@ export function getPrettierConfig(result: PrettierConfigResult): prettier.Option
       return prettierConfigFromYML(result.prettierrc_yml)
     case result.prettierrc_yaml !== "":
       return prettierConfigFromYML(result.prettierrc_yaml)
+    case result.package_json !== "":
+      return prettierConfigFromPackageJson(result.package_json)
     default:
       return {}
   }
@@ -37,6 +40,16 @@ export function prettierConfigFromJSON5(configText: string): prettier.Options {
   try {
     const parsed = JSON5.parse(configText || "{}")
     return parsed as Record<string, unknown>
+  } catch (e) {
+    throw new UserError("invalid content in file `.prettierrc`", `\`\`\`\n${configText}\n\`\`\`\n`, e)
+  }
+}
+
+/** parses the given package.json into Prettier options */
+export function prettierConfigFromPackageJson(configText: string): prettier.Options {
+  try {
+    const parsed = JSON.parse(configText || "{}")
+    return parsed.prettier || {}
   } catch (e) {
     throw new UserError("invalid content in file `.prettierrc`", `\`\`\`\n${configText}\n\`\`\`\n`, e)
   }

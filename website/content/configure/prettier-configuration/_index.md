@@ -17,6 +17,7 @@ in data formats:
 - `.prettierrc.toml`
 - `.prettierrc.yml`
 - `.prettierrc.yaml`
+- `prettier` key in `package.json`
 
 This means Prettifier does not use programmatic configuration files like
 

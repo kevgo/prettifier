@@ -23,6 +23,7 @@ export async function loadPullRequestContextData(
   const callResult: any = await github.graphql(query, { org, repo, branch })
   return {
     prettifierConfig: callResult?.repository.prettifierConfig?.text || "",
+    package_json: callResult?.repository.package_json?.text || "",
     prettierrc: callResult?.repository.prettierrc?.text || "",
     prettierrc_json: callResult?.repository.prettierrc_json?.text || "",
     prettierrc_json5: callResult?.repository.prettierrc_json5?.text || "",

@@ -9,6 +9,42 @@ suite("getPrettierConfig", function () {
     const have = getPrettierConfig(give)
     assert.deepEqual(have, {})
   })
+  test("package_json with valid content", function () {
+    const give = scaffoldPushContextData({
+      package_json: `{
+  "name": "foo",
+  "prettier": {
+    "semi": false
+  }
+}`,
+    })
+    const have = getPrettierConfig(give)
+    const want = { semi: false }
+    assert.deepEqual(have, want)
+  })
+  test("package_json with empty content", function () {
+    const give = scaffoldPushContextData({
+      package_json: `{
+  "name": "foo",
+  "prettier": {}
+}`,
+    })
+    const have = getPrettierConfig(give)
+    assert.deepEqual(have, {})
+  })
+  test("package_json with no content", function () {
+    const give = scaffoldPushContextData({
+      package_json: `{
+  "name": "foo"
+}`,
+    })
+    const have = getPrettierConfig(give)
+    assert.deepEqual(have, {})
+  })
+  test("package_json with invalid content", function () {
+    const give = scaffoldPushContextData({ package_json: `"semi` })
+    assert.throws(() => getPrettierConfig(give), UserError)
+  })
   test("prettierrc with valid JSON content", function () {
     const give = scaffoldPushContextData({ prettierrc: `{ "semi": false }` })
     const have = getPrettierConfig(give)
@@ -116,6 +152,7 @@ suite("prettierConfigFromJSON5", function () {
 function scaffoldPushContextData(testData: Partial<PushContextData> = {}): PushContextData {
   const result = {
     prettierIgnore: "",
+    package_json: "",
     prettierrc: "",
     prettierrc_json: "",
     prettierrc_json5: "",

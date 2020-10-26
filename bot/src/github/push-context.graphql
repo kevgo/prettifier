@@ -6,6 +6,11 @@ query OnPush($org: String!, $repo: String!, $branch: String!) {
         text
       }
     }
+    package_json: object(expression: "{{branch}}:package.json") {
+      ... on Blob {
+        text
+      }
+    }
     prettierrc: object(expression: "{{branch}}:.prettierrc") {
       ... on Blob {
         text
