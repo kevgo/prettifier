@@ -9,7 +9,7 @@ export function prettifierConfigFromYML(configText: string, prettierIgnore: stri
   }
   let parsed = {}
   try {
-    parsed = yml.safeLoad(configText)
+    parsed = yml.safeLoad(configText) as Record<string, unknown>
   } catch (e) {
     throw new UserError(
       `Prettifier configuration is not valid YML`,

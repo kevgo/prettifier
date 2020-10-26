@@ -5,12 +5,9 @@ import prettier from "prettier"
 /** Returns a PrettierConfiguration with the given content */
 export function prettierConfigFromYML(configText: string): prettier.Options {
   try {
-    return yml.safeLoad(configText) || {}
+    const parsed = yml.safeLoad(configText) || {}
+    return parsed as Record<string, unknown>
   } catch (e) {
-    throw new UserError(
-      'invalid content in file `.prettierrc`',
-      `\`\`\`\n${configText}\n\`\`\`\n`,
-      e
-    )
+    throw new UserError("invalid content in file `.prettierrc`", `\`\`\`\n${configText}\n\`\`\`\n`, e)
   }
 }

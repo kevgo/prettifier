@@ -20,7 +20,7 @@ import * as prettier from "prettier"
 import { PrettifierConfiguration } from "./config/prettifier-configuration"
 
 /** called when this bot gets notified about a push on Github */
-export async function onPush(context: probot.Context<webhooks.WebhookPayloadPush>): Promise<void> {
+export async function onPush(context: probot.Context<webhooks.EventPayloads.WebhookPayloadPush>): Promise<void> {
   let org = ""
   let repo = ""
   let branch = ""

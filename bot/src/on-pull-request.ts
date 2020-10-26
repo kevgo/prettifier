@@ -19,7 +19,9 @@ import * as prettier from "prettier"
 import { PrettifierConfiguration } from "./config/prettifier-configuration"
 
 /** called when this bot gets notified about a new pull request */
-export async function onPullRequest(context: probot.Context<webhooks.WebhookPayloadPullRequest>): Promise<void> {
+export async function onPullRequest(
+  context: probot.Context<webhooks.EventPayloads.WebhookPayloadPullRequest>
+): Promise<void> {
   let org = ""
   let headOrg = ""
   let repo = ""

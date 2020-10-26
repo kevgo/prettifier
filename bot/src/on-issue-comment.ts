@@ -7,7 +7,7 @@ import { logUserError, UserError } from "./logging/user-error"
 
 const commandRE = /^\/([\w]+)\b *(.*)?$/
 
-export function onIssueComment(context: probot.Context<webhooks.WebhookPayloadIssueComment>): void {
+export function onIssueComment(context: probot.Context<webhooks.EventPayloads.WebhookPayloadIssueComment>): void {
   let org = ""
   let repo = ""
   let issueID = ""
