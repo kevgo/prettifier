@@ -184,6 +184,10 @@ export async function onPullRequest(
               // TODO: send error to user asking to update permissions?
               return
             }
+            if (requestError.message.includes("The requested blob is too large to fetch via the API")) {
+              console.log(`${repoPrefix}: COMMIT IS TOO LARGE`)
+              return
+            }
           }
           if (requestError.status === 404) {
             // branch was deleted --> ignore
