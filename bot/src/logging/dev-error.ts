@@ -34,7 +34,7 @@ export async function logDevError(err: DevError): Promise<void> {
 export function bodyTemplate(err: DevError): string {
   return `
 <details>
-  <summary>the error</summary>
+  <summary>error</summary>
 
   \`\`\`
   ${util.inspect(err, true, Infinity)}
@@ -58,7 +58,7 @@ export function bodyTemplate(err: DevError): string {
 </details>
 
 <details>
-  <summary>err.stack</summary>
+  <summary>stack</summary>
 
   \`\`\`
   ${err.stack}
