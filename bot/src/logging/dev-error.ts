@@ -32,28 +32,38 @@ export async function logDevError(err: DevError, github: InstanceType<typeof Pro
 
 export function bodyTemplate(err: DevError): string {
   return `
-\`\`\`
-${util.inspect(err, true, Infinity)}
-\`\`\`
+<details>
+  <summary>the error</summary>
 
-### Cause
+  \`\`\`
+  ${util.inspect(err, true, Infinity)}
+  \`\`\`
+</details>
 
-\`\`\`
-${util.inspect(err.cause, true, Infinity)}
-\`\`\`
+<details>
+  <summary>cause</summary>
 
-### Context
+  \`\`\`
+  ${util.inspect(err.cause, true, Infinity)}
+  \`\`\`
+</details>
 
-\`\`\`
-${util.inspect(err.context, true, Infinity)}
-\`\`\`
+<details>
+  <summary>context</summary>
 
-### Stacktraces
+  \`\`\`
+  ${util.inspect(err.context, true, Infinity)}
+  \`\`\`
+</details>
 
-\`\`\`
-${err.stack}
+<details>
+  <summary>err.stack</summary>
 
-${err.cause.stack}
-\`\`\`
+  \`\`\`
+  ${err.stack}
+
+  ${err.cause.stack}
+  \`\`\`
+</details>
 `
 }
