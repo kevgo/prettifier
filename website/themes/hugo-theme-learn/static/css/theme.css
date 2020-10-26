@@ -25,11 +25,13 @@
 @font-face {
   font-family: "Novacento Sans Wide";
   src: url("../fonts/Novecentosanswide-UltraLight-webfont.eot");
-  src: url("../fonts/Novecentosanswide-UltraLight-webfont.eot?#iefix") format("embedded-opentype"),
+  src: url("../fonts/Novecentosanswide-UltraLight-webfont.eot?#iefix")
+      format("embedded-opentype"),
     url("../fonts/Novecentosanswide-UltraLight-webfont.woff2") format("woff2"),
     url("../fonts/Novecentosanswide-UltraLight-webfont.woff") format("woff"),
     url("../fonts/Novecentosanswide-UltraLight-webfont.ttf") format("truetype"),
-    url("../fonts/Novecentosanswide-UltraLight-webfont.svg#novecento_sans_wideultralight") format("svg");
+    url("../fonts/Novecentosanswide-UltraLight-webfont.svg#novecento_sans_wideultralight")
+      format("svg");
   font-style: normal;
   font-weight: 200;
 }
@@ -38,16 +40,20 @@
   font-style: normal;
   font-weight: 300;
   src: url("../fonts/Work_Sans_300.eot?#iefix") format("embedded-opentype"),
-    url("../fonts/Work_Sans_300.woff") format("woff"), url("../fonts/Work_Sans_300.woff2") format("woff2"),
-    url("../fonts/Work_Sans_300.svg#WorkSans") format("svg"), url("../fonts/Work_Sans_300.ttf") format("truetype");
+    url("../fonts/Work_Sans_300.woff") format("woff"),
+    url("../fonts/Work_Sans_300.woff2") format("woff2"),
+    url("../fonts/Work_Sans_300.svg#WorkSans") format("svg"),
+    url("../fonts/Work_Sans_300.ttf") format("truetype");
 }
 @font-face {
   font-family: "Work Sans";
   font-style: normal;
   font-weight: 500;
   src: url("../fonts/Work_Sans_500.eot?#iefix") format("embedded-opentype"),
-    url("../fonts/Work_Sans_500.woff") format("woff"), url("../fonts/Work_Sans_500.woff2") format("woff2"),
-    url("../fonts/Work_Sans_500.svg#WorkSans") format("svg"), url("../fonts/Work_Sans_500.ttf") format("truetype");
+    url("../fonts/Work_Sans_500.woff") format("woff"),
+    url("../fonts/Work_Sans_500.woff2") format("woff2"),
+    url("../fonts/Work_Sans_500.svg#WorkSans") format("svg"),
+    url("../fonts/Work_Sans_500.ttf") format("truetype");
 }
 body {
   background: #fff;
@@ -165,13 +171,15 @@ input[type="time"]:focus,
 input[type="week"]:focus,
 select[multiple="multiple"]:focus {
   border-color: #00bdf3;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 5px rgba(0, 169, 218, 0.7);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06),
+    0 0 5px rgba(0, 169, 218, 0.7);
 }
 #header-wrapper {
   background: #8451a1;
   color: #fff;
   text-align: center;
   border-bottom: 4px solid #9c6fb6;
+  padding: 1rem;
 }
 #header a {
   display: inline-block;
@@ -536,7 +544,8 @@ h6 {
   letter-spacing: -1px;
 }
 h1 {
-  font-family: "Novacento Sans Wide", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+  font-family: "Novacento Sans Wide", "Helvetica", "Tahoma", "Geneva", "Arial",
+    sans-serif;
   text-align: center;
   text-transform: uppercase;
   color: #222;
@@ -881,7 +890,8 @@ td {
   z-index: 1000000;
   display: none;
   padding: 5px 8px;
-  font: normal normal 11px/1.5 "Work Sans", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+  font: normal normal 11px/1.5 "Work Sans", "Helvetica", "Tahoma", "Geneva",
+    "Arial", sans-serif;
   color: #fff;
   text-align: center;
   text-decoration: none;
@@ -1174,12 +1184,12 @@ pre .copy-to-clipboard {
   position: absolute;
   right: 4px;
   top: 4px;
-  background-color: #949bab;
+  background-color: #c1c4c6;
   color: #ccc;
   border-radius: 2px;
 }
 pre .copy-to-clipboard:hover {
-  background-color: #656c72;
+  background-color: #00bdf3;
   color: #fff;
 }
 .parent-element {
@@ -1217,10 +1227,18 @@ pre .copy-to-clipboard:hover {
 }
 
 #sidebar #shortcuts h3 {
-  font-family: "Novacento Sans Wide", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+  font-family: "Novacento Sans Wide", "Helvetica", "Tahoma", "Geneva", "Arial",
+    sans-serif;
   color: white;
   margin-top: 1rem;
   padding-left: 1rem;
+}
+
+#homelinks {
+  background-color: #9c6fb6;
+  color: #fff;
+  padding: 7px 0;
+  border-bottom: 4px solid #9c6fb6;
 }
 
 #searchResults {
