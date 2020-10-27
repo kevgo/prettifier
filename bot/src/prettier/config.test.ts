@@ -1,4 +1,4 @@
-import { getPrettierConfig, prettierConfigFromJSON5, prettierConfigFromYML } from "./config"
+import { getPrettierConfig } from "./config"
 import { assert } from "chai"
 import { UserError } from "../logging/user-error"
 import { PushContextData } from "../github/load-push-context-data"
@@ -127,42 +127,6 @@ suite("getPrettierConfig", function () {
   test("prettierrc_yaml with invalid content", function () {
     const give = scaffoldPushContextData({ prettierrc_yaml: `"semi` })
     assert.throws(() => getPrettierConfig(give), UserError)
-  })
-})
-
-suite("prettierConfigFromYML", function () {
-  test("empty", function () {
-    const actual = prettierConfigFromYML("")
-    assert.deepEqual(actual, {})
-  })
-
-  test("valid content", function () {
-    const actual = prettierConfigFromYML("semi: false")
-    assert.deepEqual(actual, { semi: false })
-  })
-
-  test("invalid content", function () {
-    assert.throws(function () {
-      prettierConfigFromYML("'wrong")
-    }, UserError)
-  })
-})
-
-suite("prettierConfigFromJSON5", function () {
-  test("empty", function () {
-    const actual = prettierConfigFromJSON5("")
-    assert.deepEqual(actual, {})
-  })
-
-  test("valid content", function () {
-    const actual = prettierConfigFromJSON5(`{ "semi": false }`)
-    assert.deepEqual(actual, { semi: false })
-  })
-
-  test("invalid content", function () {
-    assert.throws(function () {
-      prettierConfigFromJSON5("'wrong")
-    }, UserError)
   })
 })
 
