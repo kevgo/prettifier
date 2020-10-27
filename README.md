@@ -11,6 +11,6 @@ use Prettifier and the [change log](CHANGELOG.md) for product updates.
 This is the source code of Prettifier. Organized as a monorepository, each
 top-level directory contains some aspect of the product:
 
-- [bot](bot/): source code for the GitHub bot
+- [bot](bot/): source code and tests for the GitHub bot
 - [text-run](text-run/): documentation tests
 - [website](website/): source code for the [website](https://www.prettifier.io)
