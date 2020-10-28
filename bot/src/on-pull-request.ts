@@ -148,54 +148,51 @@ export async function onPullRequest(
     }
 
     // create a commit
-    for (let createCommitTries = 2; createCommitTries > 0; createCommitTries--) {
-      try {
-        await createCommit({
-          branch,
-          github: context.github,
-          files: prettifiedFiles,
-          message: renderTemplate(await prettifierConfig.commitMessage(), {
-            files: prettifiedFiles.map(f => f.path),
-            commitSha: branch,
-          }),
-          org,
-          repo,
-        })
-        console.log(`${repoPrefix}: COMMITTED ${prettifiedFiles.length} PRETTIFIED FILES`)
-      } catch (e) {
-        if (e instanceof RequestError) {
-          const requestError = e as RequestError
-          if (requestError.status === 422) {
-            if (requestError.message.includes("Required status check")) {
-              // pull request of a protected branch
-              return
-            }
-            if (requestError.message === "Update is not a fast forward") {
-              // somebody else committed at the same time --> try again
-              console.log(
-                `${repoPrefix}: CANNOT CREATE COMMIT ON NEW PULL REQUEST BECAUSE UPDATE IS NOT A FAST FORWARD, TRYING AGAIN`
-              )
-              continue
-            }
+    try {
+      await createCommit({
+        branch,
+        github: context.github,
+        files: prettifiedFiles,
+        message: renderTemplate(await prettifierConfig.commitMessage(), {
+          files: prettifiedFiles.map(f => f.path),
+          commitSha: branch,
+        }),
+        org,
+        repo,
+      })
+      console.log(`${repoPrefix}: COMMITTED ${prettifiedFiles.length} PRETTIFIED FILES`)
+    } catch (e) {
+      if (e instanceof RequestError) {
+        const requestError = e as RequestError
+        if (requestError.status === 422) {
+          if (requestError.message.includes("Required status check")) {
+            // pull request of a protected branch
+            return
           }
-          if (requestError.status === 403) {
-            if (requestError.message.includes("Resource not accessible by integration")) {
-              // nothing we can do here
-              // TODO: send error to user asking to update permissions?
-              return
-            }
-            if (requestError.message.includes("The requested blob is too large to fetch via the API")) {
-              console.log(`${repoPrefix}: COMMIT IS TOO LARGE`)
-              return
-            }
-          }
-          if (requestError.status === 404) {
-            // branch was deleted --> ignore
+          if (requestError.message === "Update is not a fast forward") {
+            // Somebody else committed at the same time.
+            // This happens when pushing and creating a pull request at the same time.
+            // Stop here since the "push" handler for those fixes will redo our changes.
             return
           }
         }
-        throw new DevError("creating a commit on a freshly opened pull request", e)
+        if (requestError.status === 403) {
+          if (requestError.message.includes("Resource not accessible by integration")) {
+            // nothing we can do here
+            // TODO: send error to user asking to update permissions?
+            return
+          }
+          if (requestError.message.includes("The requested blob is too large to fetch via the API")) {
+            console.log(`${repoPrefix}: COMMIT IS TOO LARGE`)
+            return
+          }
+        }
+        if (requestError.status === 404) {
+          // branch was deleted --> ignore
+          return
+        }
       }
+      throw new DevError("creating a commit on a freshly opened pull request", e)
     }
 
     // add community comment
