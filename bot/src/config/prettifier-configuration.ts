@@ -11,7 +11,7 @@ interface ConfigOptions {
   commitMessage?: string
   excludeBranches?: string[] | string
   excludeFiles?: string[] | string
-  forkComment?: string
+  welcome?: string
   pullsOnly?: boolean
 }
 
@@ -29,7 +29,7 @@ export class PrettifierConfiguration {
   excludeFiles: string[]
 
   /** comment template when pull requests from forks are unformatted */
-  private customForkComment: string
+  private customWelcome: string
 
   /** whether to only prettify branches that are under code review */
   pullsOnly: boolean
@@ -58,7 +58,7 @@ export class PrettifierConfiguration {
     } else {
       this.excludeFiles = [providedConfig.excludeFiles]
     }
-    this.customForkComment = providedConfig.forkComment ?? ""
+    this.customWelcome = providedConfig.welcome ?? ""
     this.ignore = ignore().add(this.excludeFiles).add(prettierIgnore)
     this.pullsOnly = providedConfig.pullsOnly ?? false
   }
@@ -81,15 +81,12 @@ export class PrettifierConfiguration {
     return new PrettifierConfiguration(parsed, prettierIgnore)
   }
 
-  async forkComment(): Promise<string> {
-    if (this.customForkComment !== "") {
-      return this.customForkComment
+  async welcome(): Promise<string> {
+    if (this.customWelcome !== "") {
+      return this.customWelcome
     }
-    const defaultForkComment = await fs.readFile(
-      path.join("src", "config", "default-fork-comment.md.mustache"),
-      "utf-8"
-    )
-    return defaultForkComment
+    const defaultWelcome = await fs.readFile(path.join("src", "config", "default-welcome.md.mustache"), "utf-8")
+    return defaultWelcome
   }
 
   /** Indicates whether the given branch should be ignored. */

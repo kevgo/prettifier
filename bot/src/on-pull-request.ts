@@ -141,7 +141,7 @@ export async function onPullRequest(
 
     const isPullRequestFromFork = headOrg !== org
     if (isPullRequestFromFork) {
-      const text = renderTemplate(await prettifierConfig.forkComment(), { files: prettifiedFiles.map(f => f.path) })
+      const text = renderTemplate(await prettifierConfig.welcome(), { files: prettifiedFiles.map(f => f.path) })
       await addComment(pullRequestId, text, context.github)
       console.log(`${repoPrefix}: COMMENTED ON PULL REQUEST FROM FORK`)
       return

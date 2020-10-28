@@ -106,6 +106,11 @@ suite("PrettifierConfiguration", function () {
       assert.isFalse(await config.shouldPrettify("dist/foo.md"))
     })
 
+    test(".welcome()", async function () {
+      const config = PrettifierConfiguration.fromYML("welcome: Hello", "")
+      assert.equal(await config.welcome(), "Hello")
+    })
+
     test("invalid", function () {
       assert.throws(function () {
         PrettifierConfiguration.fromYML("'wrong", "")

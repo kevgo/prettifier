@@ -5,8 +5,9 @@ weight: 40
 
 If you deal with a lot of contributions from strangers, for example as a
 maintainer of a popular open-source project, you can find yourself explaining
-the formatting guidelines in a lot of pull requests. Prettifier can automate
-this by commenting on non-conforming pull requests.
+the formatting guidelines in a lot of pull requests. Prettifier can do this for
+you. To not be annoying to regular contributors, it does so only on pull
+requests made from forks of your codebase.
 
 ![screenshot](images/welcome-message.gif)
 
