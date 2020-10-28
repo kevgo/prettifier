@@ -156,6 +156,7 @@ export async function onPullRequest(
           files: prettifiedFiles,
           message: renderTemplate(await prettifierConfig.commitMessage(), {
             files: prettifiedFiles.map(f => f.path),
+            commitSha: branch,
           }),
           org,
           repo,
