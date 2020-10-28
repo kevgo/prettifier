@@ -1,4 +1,5 @@
 import { assert } from "chai"
+
 import { renderTemplate } from "./render-template"
 
 suite("formatCommitMessage", function () {

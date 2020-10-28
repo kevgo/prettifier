@@ -1,4 +1,5 @@
 import { ProbotOctokit } from "probot"
+
 import { DevError } from "../logging/dev-error"
 
 /** Loads the content of the given file in the given branch from GitHub. */

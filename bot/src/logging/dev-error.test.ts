@@ -1,5 +1,6 @@
-import { DevError, bodyTemplate } from "./dev-error"
 import { assert } from "chai"
+
+import { bodyTemplate, DevError } from "./dev-error"
 
 suite("DevError", function () {
   test("constructor()", function () {

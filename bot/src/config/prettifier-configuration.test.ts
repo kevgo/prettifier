@@ -1,6 +1,7 @@
 import { assert } from "chai"
-import { PrettifierConfiguration } from "./prettifier-configuration"
+
 import { UserError } from "../logging/user-error"
+import { PrettifierConfiguration } from "./prettifier-configuration"
 
 suite("PrettifierConfiguration", function () {
   suite(".shouldIgnoreBranch()", function () {
@@ -53,34 +54,34 @@ suite("PrettifierConfiguration", function () {
   })
 
   suite(".excludeBranches", function () {
-    test("array given", async function () {
+    test("array given", function () {
       const config = new PrettifierConfiguration({ excludeBranches: ["foo"] }, "")
       assert.deepEqual(config.excludeBranches, ["foo"])
     })
 
-    test("single name given", async function () {
+    test("single name given", function () {
       const config = new PrettifierConfiguration({ excludeBranches: "foo" }, "")
       assert.deepEqual(config.excludeBranches, ["foo"])
     })
 
-    test("nothing given", async function () {
+    test("nothing given", function () {
       const config = new PrettifierConfiguration({}, "")
       assert.deepEqual(config.excludeBranches, ["node_modules"])
     })
   })
 
   suite(".excludeFiles()", function () {
-    test("array given", async function () {
+    test("array given", function () {
       const config = new PrettifierConfiguration({ excludeFiles: ["foo"] }, "")
       assert.deepEqual(config.excludeFiles, ["foo"])
     })
 
-    test("single name given", async function () {
+    test("single name given", function () {
       const config = new PrettifierConfiguration({ excludeFiles: "foo" }, "")
       assert.deepEqual(config.excludeFiles, ["foo"])
     })
 
-    test("nothing given", async function () {
+    test("nothing given", function () {
       const config = new PrettifierConfiguration({}, "")
       assert.deepEqual(config.excludeFiles, ["package-lock.json"])
     })

@@ -2,17 +2,17 @@ import { GitCreateBlobResponseData } from "@octokit/types"
 import { ProbotOctokit } from "probot"
 
 export interface FileToCreate {
-  path: string
   content: string
+  path: string
 }
 
 export async function createCommit(args: {
-  org: string
-  repo: string
   branch: string
-  message: string
   files: FileToCreate[]
   github: InstanceType<typeof ProbotOctokit>
+  message: string
+  org: string
+  repo: string
 }): Promise<void> {
   // NOTE: we don't automatically catch errors here
   //       since this can legitimately fail
@@ -84,9 +84,9 @@ export async function createCommit(args: {
 
 // NOTE: had to copy-and-paste this because neither Probot nor Octokit seem to export this
 type GitCreateTreeParamsTree = {
-  path?: string
-  mode?: "100644" | "100755" | "040000" | "160000" | "120000"
-  type?: "blob" | "tree" | "commit"
-  sha?: string
   content?: string
+  mode?: "100644" | "100755" | "040000" | "160000" | "120000"
+  path?: string
+  sha?: string
+  type?: "blob" | "tree" | "commit"
 }

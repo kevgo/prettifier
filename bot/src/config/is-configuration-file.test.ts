@@ -1,4 +1,5 @@
 import { assert } from "chai"
+
 import { isConfigurationFile } from "./is-configuration-file"
 
 suite("isConfigurationFile", function () {

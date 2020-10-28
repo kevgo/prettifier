@@ -1,6 +1,7 @@
-import util from "util"
-import { Context } from "./context"
 import { Octokit } from "@octokit/rest"
+import util from "util"
+
+import { Context } from "./context"
 
 /** DevError incidates a Prettifier bug */
 export class DevError extends Error {

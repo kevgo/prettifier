@@ -1,4 +1,5 @@
 import { assert } from "chai"
+
 import { prettify } from "./prettify"
 
 suite("prettify", function () {

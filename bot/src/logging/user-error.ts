@@ -1,4 +1,5 @@
 import { ProbotOctokit } from "probot"
+
 import { addComment } from "../github/add-comment"
 import { Context } from "./context"
 
@@ -22,10 +23,10 @@ export class UserError extends Error {
 }
 
 /** Logs a user mistake. */
-export function logUserError(e: UserError, github: InstanceType<typeof ProbotOctokit>): void {
+export async function logUserError(e: UserError, github: InstanceType<typeof ProbotOctokit>): Promise<void> {
   console.log(`${e.context.org}|${e.context.repo}: USER ERROR: ${e.message}:`, e.message)
   if (e.context.pullRequestId !== "") {
-    addComment(e.context.pullRequestId || e.context.issueID, bodyTemplate(e), github)
+    await addComment(e.context.pullRequestId || e.context.issueID, bodyTemplate(e), github)
   }
 }
 

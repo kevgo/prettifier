@@ -1,5 +1,5 @@
-import { ProbotOctokit } from "probot"
 import { promises as fs } from "fs"
+import { ProbotOctokit } from "probot"
 import path = require("path")
 
 export async function addComment(

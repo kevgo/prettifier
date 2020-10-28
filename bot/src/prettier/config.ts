@@ -1,8 +1,9 @@
-import yml from "js-yaml"
-import { UserError } from "../logging/user-error"
-import prettier from "prettier"
 import * as TOML from "@iarna/toml"
+import yml from "js-yaml"
 import JSON5 from "json5"
+import prettier from "prettier"
+
+import { UserError } from "../logging/user-error"
 
 export interface PrettierConfigResult {
   package_json: string
@@ -10,14 +11,16 @@ export interface PrettierConfigResult {
   prettierrc_json: string
   prettierrc_json5: string
   prettierrc_toml: string
-  prettierrc_yml: string
   prettierrc_yaml: string
+  prettierrc_yml: string
 }
 
 export function getPrettierConfig(result: PrettierConfigResult): prettier.Options {
   return (
     loadConfig(result.prettierrc, ".prettierrc", parseYML) ||
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     loadConfig(result.prettierrc_json, ".prettierrc.json", JSON5.parse) ||
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     loadConfig(result.prettierrc_json5, ".prettierrc.json5", JSON5.parse) ||
     loadConfig(result.prettierrc_toml, ".prettierrc.toml", TOML.parse) ||
     loadConfig(result.prettierrc_yml, ".prettierrc.yml", parseYML) ||
@@ -49,7 +52,7 @@ function loadConfig(
 function parsePackageJson(configText: string): Record<string, unknown> {
   try {
     const parsed = JSON.parse(configText)
-    return parsed.prettier || {}
+    return (parsed.prettier || {}) as Record<string, unknown>
   } catch (e) {
     throw new UserError("invalid content in file `.prettierrc`", `\`\`\`\n${configText}\n\`\`\`\n`, e)
   }

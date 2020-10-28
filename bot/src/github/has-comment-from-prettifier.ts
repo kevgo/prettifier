@@ -1,6 +1,6 @@
-import { ProbotOctokit } from "probot"
 import { promises as fs } from "fs"
 import path from "path"
+import { ProbotOctokit } from "probot"
 
 /** returns whether the given pull request already has a comment from PrettifierBot */
 export async function hasCommentFromPrettifier(

@@ -1,7 +1,8 @@
-import { getPrettierConfig } from "./config"
 import { assert } from "chai"
-import { UserError } from "../logging/user-error"
+
 import { PushContextData } from "../github/load-push-context-data"
+import { UserError } from "../logging/user-error"
+import { getPrettierConfig } from "./config"
 
 suite("getPrettierConfig", function () {
   test("none given", function () {

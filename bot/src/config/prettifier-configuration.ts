@@ -1,8 +1,9 @@
-import ignore, { Ignore } from "ignore"
-import prettier from "prettier"
 import { promises as fs } from "fs"
-import path from "path"
+import ignore, { Ignore } from "ignore"
 import yml from "js-yaml"
+import path from "path"
+import prettier from "prettier"
+
 import { UserError } from "../logging/user-error"
 
 /** ConfigOptions defines the configuration options that users can provide. */
@@ -11,8 +12,8 @@ interface ConfigOptions {
   commitMessage?: string
   excludeBranches?: string[] | string
   excludeFiles?: string[] | string
-  welcome?: string
   pullsOnly?: boolean
+  welcome?: string
 }
 
 /** PrettifierConfiguration provides the configuration of Prettifier. */

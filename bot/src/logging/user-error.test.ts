@@ -1,5 +1,6 @@
-import { UserError, bodyTemplate } from "./user-error"
 import { assert } from "chai"
+
+import { bodyTemplate, UserError } from "./user-error"
 
 suite("UserError", function () {
   test("constructor()", function () {

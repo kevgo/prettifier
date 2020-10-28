@@ -1,4 +1,5 @@
 import { assert } from "chai"
+
 import { applyPrettierConfigOverrides } from "./apply-prettier-config-overrides"
 
 suite("applyPrettierConfigOverrides", function () {

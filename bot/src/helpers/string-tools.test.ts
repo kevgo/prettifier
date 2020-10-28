@@ -1,4 +1,5 @@
 import { assert } from "chai"
+
 import { firstLineWithPill } from "./string-tools"
 
 suite("string-tools.firstLineWithPill", function () {

@@ -1,12 +1,13 @@
-import { ProbotOctokit } from "probot"
 import { promises as fs } from "fs"
 import path from "path"
+import { ProbotOctokit } from "probot"
+
 import { PrettierConfigResult } from "../prettier/config"
 
 /** fields unique to pull request contexts */
 interface PullRequestContextUnique {
-  prettifierConfig: string
   prettierIgnore: string
+  prettifierConfig: string
 }
 
 /** the payload of loading additional pull request data via the GraphQL API */

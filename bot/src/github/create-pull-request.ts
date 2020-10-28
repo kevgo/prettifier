@@ -1,18 +1,19 @@
-import { createCommit, FileToCreate } from "./create-commit"
-import { ProbotOctokit } from "probot"
-import { DevError } from "../logging/dev-error"
 import { RequestError } from "@octokit/request-error"
+import { ProbotOctokit } from "probot"
+
+import { DevError } from "../logging/dev-error"
 import { LoggedError } from "../logging/logged-error"
+import { createCommit, FileToCreate } from "./create-commit"
 
 export async function createPullRequest(args: {
-  org: string
-  repo: string
-  parentBranch: string
-  branch: string
-  message: string
   body: string
+  branch: string
   files: FileToCreate[]
   github: InstanceType<typeof ProbotOctokit>
+  message: string
+  org: string
+  parentBranch: string
+  repo: string
 }): Promise<void> {
   // get the SHA of the latest commit in the parent branch
   try {
@@ -45,8 +46,7 @@ export async function createPullRequest(args: {
     })
   } catch (e) {
     if (e instanceof RequestError) {
-      const requestError = e as RequestError
-      if (requestError.status === 403 && requestError.message === "Resource not accessible by integration") {
+      if (e.status === 403 && e.message === "Resource not accessible by integration") {
         console.log(`${args.org}|${args.repo}|${args.branch}: USER HASN'T ACCEPTED THE PERMISSIONS TO EDIT CONTENT`)
         throw new LoggedError()
       }

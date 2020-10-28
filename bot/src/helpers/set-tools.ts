@@ -1,7 +1,11 @@
 export function concatToSet<T>(set: Set<T>, array: T[]): void {
-  array.forEach(set.add, set)
+  for (const element of array) {
+    set.add(element)
+  }
 }
 
 export function removeAllFromSet<T>(set: Set<T>, array: T[]): void {
-  array.forEach(set.delete, set)
+  for (const element of array) {
+    set.delete(element)
+  }
 }

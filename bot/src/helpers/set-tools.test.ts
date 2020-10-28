@@ -1,4 +1,5 @@
 import { assert } from "chai"
+
 import { concatToSet, removeAllFromSet } from "./set-tools"
 
 suite("concatToSet", function () {

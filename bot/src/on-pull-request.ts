@@ -1,21 +1,22 @@
-import * as probot from "probot"
+import { RequestError } from "@octokit/request-error"
 import webhooks from "@octokit/webhooks"
-import { loadFile } from "./github/load-file"
-import { getExistingFilesInPullRequests } from "./github/get-existing-files-in-pull-request"
-import { renderTemplate } from "./template/render-template"
-import { createCommit } from "./github/create-commit"
-import { applyPrettierConfigOverrides } from "./prettier/apply-prettier-config-overrides"
-import { prettify } from "./prettier/prettify"
+import * as prettier from "prettier"
+import * as probot from "probot"
+
+import { isConfigurationFile } from "./config/is-configuration-file"
+import { PrettifierConfiguration } from "./config/prettifier-configuration"
 import { addComment } from "./github/add-comment"
+import { createCommit } from "./github/create-commit"
+import { getExistingFilesInPullRequests } from "./github/get-existing-files-in-pull-request"
+import { loadFile } from "./github/load-file"
+import { loadPullRequestContextData } from "./github/load-pull-request-context-data"
 import { DevError, logDevError } from "./logging/dev-error"
 import { LoggedError } from "./logging/logged-error"
-import { RequestError } from "@octokit/request-error"
-import { isConfigurationFile } from "./config/is-configuration-file"
+import { logUserError, UserError } from "./logging/user-error"
+import { applyPrettierConfigOverrides } from "./prettier/apply-prettier-config-overrides"
 import { getPrettierConfig } from "./prettier/config"
-import { loadPullRequestContextData } from "./github/load-pull-request-context-data"
-import { UserError, logUserError } from "./logging/user-error"
-import * as prettier from "prettier"
-import { PrettifierConfiguration } from "./config/prettifier-configuration"
+import { prettify } from "./prettier/prettify"
+import { renderTemplate } from "./template/render-template"
 
 /** called when this bot gets notified about a new pull request */
 export async function onPullRequest(
@@ -95,12 +96,11 @@ export async function onPullRequest(
         fileContent = await loadFile(headOrg, repo, branch, filePath, context.github)
       } catch (e) {
         if (e instanceof RequestError) {
-          const requestError = e as RequestError
-          if (requestError.status === 403) {
+          if (e.status === 403) {
             // file exists but the server refused to serve the file --> ignore
             continue
           }
-          if (requestError.status === 404) {
+          if (e.status === 404) {
             // file no longer exists, probably because the branch was deleted --> ignore
             continue
           }
@@ -163,31 +163,30 @@ export async function onPullRequest(
       console.log(`${repoPrefix}: COMMITTED ${prettifiedFiles.length} PRETTIFIED FILES`)
     } catch (e) {
       if (e instanceof RequestError) {
-        const requestError = e as RequestError
-        if (requestError.status === 422) {
-          if (requestError.message.includes("Required status check")) {
+        if (e.status === 422) {
+          if (e.message.includes("Required status check")) {
             // pull request of a protected branch
             return
           }
-          if (requestError.message === "Update is not a fast forward") {
+          if (e.message === "Update is not a fast forward") {
             // Somebody else committed at the same time.
             // This happens when pushing and creating a pull request at the same time.
             // Stop here since the "push" handler for those fixes will redo our changes.
             return
           }
         }
-        if (requestError.status === 403) {
-          if (requestError.message.includes("Resource not accessible by integration")) {
+        if (e.status === 403) {
+          if (e.message.includes("Resource not accessible by integration")) {
             // nothing we can do here
             // TODO: send error to user asking to update permissions?
             return
           }
-          if (requestError.message.includes("The requested blob is too large to fetch via the API")) {
+          if (e.message.includes("The requested blob is too large to fetch via the API")) {
             console.log(`${repoPrefix}: COMMIT IS TOO LARGE`)
             return
           }
         }
-        if (requestError.status === 404) {
+        if (e.status === 404) {
           // branch was deleted --> ignore
           return
         }
@@ -218,14 +217,14 @@ export async function onPullRequest(
     }
     if (e instanceof UserError) {
       e.enrich(errorContext)
-      logUserError(e, context.github)
+      await logUserError(e, context.github)
       return
     }
     if (e instanceof DevError) {
       e.enrich(errorContext)
-      logDevError(e)
+      await logDevError(e)
       return
     }
-    logDevError(new DevError("unknown dev error", e, errorContext))
+    await logDevError(new DevError("unknown dev error", e, errorContext))
   }
 }

@@ -1,13 +1,16 @@
-import * as probot from "probot"
 import webhooks from "@octokit/webhooks"
+import * as probot from "probot"
+
 import { addComment } from "./github/add-comment"
-import { DevError, logDevError } from "./logging/dev-error"
 import { firstLineWithPill } from "./helpers/string-tools"
+import { DevError, logDevError } from "./logging/dev-error"
 import { logUserError, UserError } from "./logging/user-error"
 
 const commandRE = /^\/([\w]+)\b *(.*)?$/
 
-export function onIssueComment(context: probot.Context<webhooks.EventPayloads.WebhookPayloadIssueComment>): void {
+export async function onIssueComment(
+  context: probot.Context<webhooks.EventPayloads.WebhookPayloadIssueComment>
+): Promise<void> {
   let org = ""
   let repo = ""
   let issueID = ""
@@ -35,7 +38,7 @@ export function onIssueComment(context: probot.Context<webhooks.EventPayloads.We
       console.log(`${repoPrefix}: EMPTY COMMENT`)
       return
     }
-    const command = issueText.match(commandRE)
+    const command = commandRE.exec(issueText)
     if (command == null) {
       console.log(`${repoPrefix}: NOT A BOT COMMAND, IGNORING`)
       return
@@ -53,15 +56,17 @@ export function onIssueComment(context: probot.Context<webhooks.EventPayloads.We
         return
       case "dev error":
         console.log(`${repoPrefix}: SIMULATING DEV ERROR`)
-        logDevError(new DevError("simulated error", new Error("underlying error"), { org, repo, issueID, issueNr }))
+        await logDevError(
+          new DevError("simulated error", new Error("underlying error"), { org, repo, issueID, issueNr })
+        )
         return
       case "help":
         console.log(`${repoPrefix}: HELP COMMAND`)
-        addComment(issueID, helpTemplate(), github)
+        await addComment(issueID, helpTemplate(), github)
         return
       case "user error":
         console.log(`${repoPrefix}: SIMULATING USER ERROR`)
-        logUserError(
+        await logUserError(
           new UserError(
             "simulated activity",
             `This is a simulated user error that you have requested by commenting "${issueText}".`,
@@ -73,28 +78,28 @@ export function onIssueComment(context: probot.Context<webhooks.EventPayloads.We
         return
       case undefined:
         console.log(`${repoPrefix}: MISSING COMMAND`)
-        addCommentWithGuidance(issueID, `missing command`, helpTemplate(), github)
+        await addCommentWithGuidance(issueID, `missing command`, helpTemplate(), github)
         return
       default:
         console.log(`${repoPrefix}: UNKNOWN PRETTIFIER COMMAND: ${botCommand}`)
-        addCommentWithGuidance(issueID, `unknown command: ${botCommand}`, helpTemplate(), github)
+        await addCommentWithGuidance(issueID, `unknown command: ${botCommand}`, helpTemplate(), github)
     }
   } catch (e) {
     console.log(`${repoPrefix}: ${e}`)
     if (github) {
       const devErr = new DevError(e.message, e, { org, repo, issueNr, issueID })
-      logDevError(devErr)
+      await logDevError(devErr)
     }
   }
 }
 
-function addCommentWithGuidance(
+async function addCommentWithGuidance(
   issueID: string,
   message: string,
   guidance: string,
   github: InstanceType<typeof probot.ProbotOctokit>
 ) {
-  addComment(issueID, `${message}\n\n${guidance}`, github)
+  await addComment(issueID, `${message}\n\n${guidance}`, github)
 }
 
 function helpTemplate(): string {

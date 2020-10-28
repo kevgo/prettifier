@@ -1,22 +1,23 @@
 import { RequestError } from "@octokit/request-error"
 import webhooks from "@octokit/webhooks"
+import * as prettier from "prettier"
 import * as probot from "probot"
-import { applyPrettierConfigOverrides } from "./prettier/apply-prettier-config-overrides"
+
+import { PrettifierConfiguration } from "./config/prettifier-configuration"
+import { addComment } from "./github/add-comment"
 import { createCommit } from "./github/create-commit"
 import { createPullRequest } from "./github/create-pull-request"
-import { renderTemplate } from "./template/render-template"
-import { prettify } from "./prettier/prettify"
-import { addComment } from "./github/add-comment"
 import { hasCommentFromPrettifier } from "./github/has-comment-from-prettifier"
-import { LoggedError } from "./logging/logged-error"
 import { loadFile } from "./github/load-file"
-import { DevError, logDevError } from "./logging/dev-error"
-import { concatToSet, removeAllFromSet } from "./helpers/set-tools"
 import { loadPushContextData, PushContextData } from "./github/load-push-context-data"
-import { UserError, logUserError } from "./logging/user-error"
-import * as prettier from "prettier"
-import { PrettifierConfiguration } from "./config/prettifier-configuration"
+import { concatToSet, removeAllFromSet } from "./helpers/set-tools"
+import { DevError, logDevError } from "./logging/dev-error"
+import { LoggedError } from "./logging/logged-error"
+import { logUserError, UserError } from "./logging/user-error"
+import { applyPrettierConfigOverrides } from "./prettier/apply-prettier-config-overrides"
 import { getPrettierConfig } from "./prettier/config"
+import { prettify } from "./prettier/prettify"
+import { renderTemplate } from "./template/render-template"
 
 /** called when this bot gets notified about a push on Github */
 export async function onPush(context: probot.Context<webhooks.EventPayloads.WebhookPayloadPush>): Promise<void> {
@@ -123,7 +124,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
         fileContent = await loadFile(org, repo, branch, currentFile, context.github)
       } catch (e) {
         if (e instanceof RequestError) {
-          const requestError = e as RequestError
+          const requestError = e
           if (requestError.status === 403) {
             // file exists but the server refused to serve the file --> ignore
             continue
@@ -181,7 +182,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       if (pullRequestId !== "") {
         const hasComment = await hasCommentFromPrettifier(org, repo, pullRequestNumber, context.github)
         if (!hasComment) {
-          addComment(
+          await addComment(
             pullRequestId,
             renderTemplate(prettifierConfig.commentTemplate, {
               commitSha,
@@ -248,14 +249,14 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     }
     if (e instanceof DevError) {
       e.enrich(errorContext)
-      logDevError(e)
+      await logDevError(e)
       return
     }
     if (e instanceof UserError) {
       e.enrich(errorContext)
-      logUserError(e, context.github)
+      await logUserError(e, context.github)
       return
     }
-    logDevError(e)
+    await logDevError(e)
   }
 }

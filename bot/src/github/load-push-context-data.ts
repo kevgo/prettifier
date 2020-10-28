@@ -1,15 +1,16 @@
-import { ProbotOctokit } from "probot"
 import { promises as fs } from "fs"
-import { DevError } from "../logging/dev-error"
 import path from "path"
+import { ProbotOctokit } from "probot"
+
+import { DevError } from "../logging/dev-error"
 import { PrettierConfigResult } from "../prettier/config"
 
 /** fields unique to push contexts */
 interface PushContextUnique {
-  prettifierConfig: string
   prettierIgnore: string
-  pullRequestNumber: number
+  prettifierConfig: string
   pullRequestId: string
+  pullRequestNumber: number
   pullRequestURL: string
 }
 

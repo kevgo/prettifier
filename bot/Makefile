@@ -17,8 +17,7 @@ help:   # prints all make targets
 	@cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
 lint:  # lints the code base
-	${CURDIR}/node_modules/.bin/eslint -c .eslintrc.js --ext .ts .
-	# TODO: uncomment once Prettifier can read the new config format
+	${CURDIR}/node_modules/.bin/eslint --ext .ts .
 	${CURDIR}/node_modules/.bin/prettier --list-different .
 
 logs:   # shows the log output from the production server
@@ -43,7 +42,7 @@ test:  # runs all tests
 	${CURDIR}/node_modules/.bin/mocha src/**/*.test.ts --reporter dot
 
 unit:  # runs the unit tests
-	${CURDIR}/node_modules/.bin/mocha src/**/*.test.ts --reporter dot
+	${CURDIR}/node_modules/.bin/mocha --reporter dot './src/**/*.test.ts'
 
 update:  # updates the dependencies
 	yarn upgrade --latest

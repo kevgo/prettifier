@@ -1,4 +1,5 @@
 import * as probot from "probot"
+
 import { onIssueComment } from "./on-issue-comment"
 import { onPullRequest } from "./on-pull-request"
 import { onPush } from "./on-push"
