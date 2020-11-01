@@ -26,7 +26,7 @@ export class UserError extends Error {
 export async function logUserError(e: UserError, github: InstanceType<typeof ProbotOctokit>): Promise<void> {
   console.log(`${e.context.org}|${e.context.repo}: USER ERROR: ${e.message}:`, e.message)
   if (e.context.pullRequestId !== "") {
-    await addComment(e.context.pullRequestId || e.context.issueID, bodyTemplate(e), github)
+    await addComment({ issueId: e.context.pullRequestId || e.context.issueID, text: bodyTemplate(e), github })
   }
 }
 

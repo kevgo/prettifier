@@ -17,15 +17,19 @@ interface PushContextUnique {
 /** the payload of loading additional push data via the GraphQL API */
 export type PushContextData = PushContextUnique & PrettierConfigResult
 
-export async function loadPushContextData(
-  org: string,
-  repo: string,
-  branch: string,
+export async function loadPushContextData(args: {
+  branch: string
   github: InstanceType<typeof ProbotOctokit>
-): Promise<PushContextData> {
+  org: string
+  repo: string
+}): Promise<PushContextData> {
   let query = await fs.readFile(path.join("src", "github", "push-context.graphql"), "utf-8")
-  query = query.replace(/\{\{branch\}\}/g, branch)
-  const callResult: any = await github.graphql(query, { org, repo, branch })
+  query = query.replace(/\{\{branch\}\}/g, args.branch)
+  const callResult: any = await args.github.graphql(query, {
+    org: args.org,
+    repo: args.repo,
+    branch: args.branch,
+  })
 
   let pullRequestNumber = 0
   let pullRequestId = ""

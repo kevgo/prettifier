@@ -2,11 +2,11 @@ import { promises as fs } from "fs"
 import { ProbotOctokit } from "probot"
 import path = require("path")
 
-export async function addComment(
-  issueId: string,
-  text: string,
+export async function addComment(args: {
   github: InstanceType<typeof ProbotOctokit>
-): Promise<void> {
+  issueId: string
+  text: string
+}): Promise<void> {
   const query = await fs.readFile(path.join("src", "github", "add-comment.graphql"), "utf-8")
-  await github.graphql(query, { issueId, text })
+  await args.github.graphql(query, { issueId: args.issueId, text: args.text })
 }

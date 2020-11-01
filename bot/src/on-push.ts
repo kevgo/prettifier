@@ -2,6 +2,7 @@ import { RequestError } from "@octokit/request-error"
 import webhooks from "@octokit/webhooks"
 import * as prettier from "prettier"
 import * as probot from "probot"
+import { ProbotOctokit } from "probot"
 
 import { PrettifierConfiguration } from "./config/prettifier-configuration"
 import { addComment } from "./github/add-comment"
@@ -19,32 +20,49 @@ import { getPrettierConfig } from "./prettier/config"
 import { prettify } from "./prettier/prettify"
 import { renderTemplate } from "./template/render-template"
 
+interface PushState {
+  author: string
+  branch: string
+  commitSha: string
+  github: InstanceType<typeof ProbotOctokit>
+  org: string
+  prettierConfig: prettier.Options
+  prettierIgnore: string
+  prettifierConfig: PrettifierConfiguration
+  pullRequestId: string
+  pullRequestNumber: number
+  repo: string
+}
+
 /** called when this bot gets notified about a push on Github */
 export async function onPush(context: probot.Context<webhooks.EventPayloads.WebhookPayloadPush>): Promise<void> {
-  let org = ""
-  let repo = ""
-  let branch = ""
-  let author = ""
-  let commitSha = ""
-  let pullRequestNumber = 0
-  let pullRequestId = ""
-  let prettierConfig: prettier.Options = {}
-  let prettifierConfig: PrettifierConfiguration = new PrettifierConfiguration({}, "")
-  let prettierIgnore = ""
+  const state: PushState = {
+    org: "",
+    repo: "",
+    branch: "",
+    author: "",
+    commitSha: "",
+    pullRequestNumber: 0,
+    pullRequestId: "",
+    prettierConfig: {},
+    prettifierConfig: new PrettifierConfiguration({}, ""),
+    prettierIgnore: "",
+    github: context.github,
+  }
   const changedFiles = new Set<string>()
   const prettifiedFiles = []
   let currentFile = ""
   let prettierConfigForFile: prettier.Options = {}
   try {
-    org = context.payload.repository.owner.login
-    repo = context.payload.repository.name
-    branch = context.payload.ref.replace("refs/heads/", "")
-    author = context.payload.pusher.name
-    commitSha = context.payload.after.substring(0, 7)
-    const repoPrefix = `${org}/${repo}|${branch}|${commitSha}`
+    state.org = context.payload.repository.owner.login
+    state.repo = context.payload.repository.name
+    state.branch = context.payload.ref.replace("refs/heads/", "")
+    state.author = context.payload.pusher.name
+    state.commitSha = context.payload.after.substring(0, 7)
+    const repoPrefix = `${state.org}/${state.repo}|${state.branch}|${state.commitSha}`
 
     // ignore deleted branches
-    if (commitSha === "0000000") {
+    if (state.commitSha === "0000000") {
       console.log(`${repoPrefix}: IGNORING BRANCH DELETION`)
       return
     }
@@ -53,7 +71,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     console.log(`${repoPrefix}: PUSH DETECTED`)
 
     // ignore commits by Prettifier
-    if (author === "prettifier[bot]") {
+    if (state.author === "prettifier[bot]") {
       console.log(`${repoPrefix}: IGNORING COMMIT BY PRETTIFIER`)
       return
     }
@@ -61,33 +79,33 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     // load additional information from GitHub
     let pushContextData: PushContextData
     try {
-      pushContextData = await loadPushContextData(org, repo, branch, context.github)
+      pushContextData = await loadPushContextData(state)
     } catch (e) {
       // can't load push context for some reason, like missing permissions --> abort
       console.log(`${repoPrefix}: CAN'T LOAD PUSH CONTEXT:`, e)
       return
     }
-    pullRequestNumber = pushContextData.pullRequestNumber
-    pullRequestId = pushContextData.pullRequestId
-    prettierIgnore = pushContextData.prettierIgnore
-    prettifierConfig = PrettifierConfiguration.fromYML(pushContextData.prettifierConfig, prettierIgnore)
-    console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(prettifierConfig)}`)
-    prettierConfig = getPrettierConfig(pushContextData)
-    console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(prettierConfig)}`)
+    state.pullRequestNumber = pushContextData.pullRequestNumber
+    state.pullRequestId = pushContextData.pullRequestId
+    state.prettierIgnore = pushContextData.prettierIgnore
+    state.prettifierConfig = PrettifierConfiguration.fromYML(pushContextData.prettifierConfig, state.prettierIgnore)
+    console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(state.prettifierConfig)}`)
+    state.prettierConfig = getPrettierConfig(pushContextData)
+    console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(state.prettierConfig)}`)
 
     // check whether this branch should be ignored
-    if (prettifierConfig.shouldIgnoreBranch(branch)) {
+    if (state.prettifierConfig.shouldIgnoreBranch(state.branch)) {
       console.log(`${repoPrefix}: IGNORING THIS BRANCH PER BOT CONFIG`)
       return
     }
 
     // check pull requests
-    if (prettifierConfig.pullsOnly) {
-      if (pullRequestNumber === 0) {
+    if (state.prettifierConfig.pullsOnly) {
+      if (state.pullRequestNumber === 0) {
         console.log(`${repoPrefix}: IGNORING THIS BRANCH BECAUSE IT HAS NO OPEN PULL REQUEST`)
         return
       }
-      console.log(`${repoPrefix}: THIS BRANCH HAS PULL REQUEST #${pullRequestNumber}`)
+      console.log(`${repoPrefix}: THIS BRANCH HAS PULL REQUEST #${state.pullRequestNumber}`)
     }
 
     // find all changed files
@@ -106,7 +124,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       // ignore non-prettifiable files
       let allowed = false
       try {
-        allowed = await prettifierConfig.shouldPrettify(currentFile)
+        allowed = await state.prettifierConfig.shouldPrettify(currentFile)
       } catch (e) {
         if (e instanceof LoggedError) {
           continue
@@ -121,7 +139,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       // load the file content
       let fileContent = ""
       try {
-        fileContent = await loadFile(org, repo, branch, currentFile, context.github)
+        fileContent = await loadFile({ ...state, filePath: currentFile })
       } catch (e) {
         if (e instanceof RequestError) {
           const requestError = e
@@ -138,7 +156,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       }
 
       // prettify the file
-      prettierConfigForFile = applyPrettierConfigOverrides(prettierConfig, currentFile)
+      prettierConfigForFile = applyPrettierConfigOverrides(state.prettierConfig, currentFile)
       const formatted = prettify(fileContent, currentFile, prettierConfigForFile)
 
       // ignore if there are no changes
@@ -162,15 +180,12 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     let createCommitError: Error | null = null
     try {
       await createCommit({
-        branch,
-        github: context.github,
+        ...state,
         files: prettifiedFiles,
-        message: renderTemplate(await prettifierConfig.commitMessage(), {
-          commitSha,
+        message: renderTemplate(await state.prettifierConfig.commitMessage(), {
+          commitSha: state.commitSha,
           files: prettifiedFiles.map(f => f.path),
         }),
-        org,
-        repo,
       })
       console.log(`${repoPrefix}: COMMITTED ${prettifiedFiles.length} PRETTIFIED FILES`)
     } catch (e) {
@@ -178,18 +193,18 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       createCommitError = e
     }
 
-    if (!createCommitError && prettifierConfig.commentTemplate !== "") {
-      if (pullRequestId !== "") {
-        const hasComment = await hasCommentFromPrettifier(org, repo, pullRequestNumber, context.github)
+    if (!createCommitError && state.prettifierConfig.commentTemplate !== "") {
+      if (state.pullRequestId !== "") {
+        const hasComment = await hasCommentFromPrettifier(state)
         if (!hasComment) {
-          await addComment(
-            pullRequestId,
-            renderTemplate(prettifierConfig.commentTemplate, {
-              commitSha,
+          await addComment({
+            ...state,
+            issueId: state.pullRequestId,
+            text: renderTemplate(state.prettifierConfig.commentTemplate, {
+              commitSha: state.commitSha,
               files: prettifiedFiles.map(f => f.path),
             }),
-            context.github
-          )
+          })
         } else {
           console.log(`${repoPrefix}: PULL REQUEST ALREADY HAS COMMENT, SKIPPING`)
         }
@@ -214,17 +229,15 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
 
     // try creating a pull request
     await createPullRequest({
+      ...state,
       body: "Formats recently committed files. No content changes.",
-      branch: `prettifier-${commitSha}`,
-      github: context.github,
+      branch: `prettifier-${state.commitSha}`,
       files: prettifiedFiles,
-      message: renderTemplate(await prettifierConfig.commitMessage(), {
-        commitSha,
+      message: renderTemplate(await state.prettifierConfig.commitMessage(), {
+        commitSha: state.commitSha,
         files: prettifiedFiles.map(f => f.path),
       }),
-      org,
       parentBranch: "master",
-      repo,
     })
     console.log(`${repoPrefix}: CREATED PULL REQUEST FOR ${prettifiedFiles.length} PRETTIFIED FILES`)
   } catch (e) {
@@ -232,16 +245,9 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       return
     }
     const errorContext = {
+      ...state,
       event: "on-pull-request",
-      org,
-      repo,
-      branch,
-      pullRequestId,
-      pullRequestNumber,
       payload: context.payload,
-      prettierConfig,
-      prettifierConfig,
-      prettierIgnore,
       changedFiles,
       prettifiedFiles,
       currentFile,

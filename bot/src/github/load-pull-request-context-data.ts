@@ -1,7 +1,7 @@
 import { promises as fs } from "fs"
 import path from "path"
-import { ProbotOctokit } from "probot"
 
+import { PullRequestState } from "../on-pull-request"
 import { PrettierConfigResult } from "../prettier/config"
 
 /** fields unique to pull request contexts */
@@ -13,15 +13,10 @@ interface PullRequestContextUnique {
 /** the payload of loading additional pull request data via the GraphQL API */
 export type PullRequestContextData = PullRequestContextUnique & PrettierConfigResult
 
-export async function loadPullRequestContextData(
-  org: string,
-  repo: string,
-  branch: string,
-  github: InstanceType<typeof ProbotOctokit>
-): Promise<PullRequestContextData> {
+export async function loadPullRequestContextData(state: PullRequestState): Promise<PullRequestContextData> {
   let query = await fs.readFile(path.join("src", "github", "pull-request-context.graphql"), "utf-8")
-  query = query.replace(/\{\{branch\}\}/g, branch)
-  const callResult: any = await github.graphql(query, { org, repo, branch })
+  query = query.replace(/\{\{branch\}\}/g, state.branch)
+  const callResult: any = await state.github.graphql(query, { org: state.org, repo: state.repo, branch: state.branch })
   return {
     prettifierConfig: callResult?.repository.prettifierConfig?.text || "",
     package_json: callResult?.repository.package_json?.text || "",

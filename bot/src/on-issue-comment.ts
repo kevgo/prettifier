@@ -1,5 +1,6 @@
 import webhooks from "@octokit/webhooks"
 import * as probot from "probot"
+import { ProbotOctokit } from "probot"
 
 import { addComment } from "./github/add-comment"
 import { firstLineWithPill } from "./helpers/string-tools"
@@ -8,22 +9,31 @@ import { logUserError, UserError } from "./logging/user-error"
 
 const commandRE = /^\/([\w]+)\b *(.*)?$/
 
+interface IssueCommentState {
+  github: InstanceType<typeof ProbotOctokit>
+  issueId: string
+  issueNr: number
+  org: string
+  repo: string
+}
+
 export async function onIssueComment(
   context: probot.Context<webhooks.EventPayloads.WebhookPayloadIssueComment>
 ): Promise<void> {
-  let org = ""
-  let repo = ""
-  let issueID = ""
-  let issueNr = 0
-  let github = null
+  const state: IssueCommentState = {
+    org: "",
+    repo: "",
+    issueId: "",
+    issueNr: 0,
+    github: context.github,
+  }
   let repoPrefix = ""
   try {
-    org = context.payload.repository.owner.login
-    repo = context.payload.repository.name
-    issueID = context.payload.issue.node_id
-    issueNr = context.payload.issue.number
-    github = context.github
-    repoPrefix = `${org}/${repo}`
+    state.org = context.payload.repository.owner.login
+    state.repo = context.payload.repository.name
+    state.issueId = context.payload.issue.node_id
+    state.issueNr = context.payload.issue.number
+    repoPrefix = `${state.org}/${state.repo}`
     if (context.payload.comment.user.login === "prettifier[bot]") {
       console.log(`${repoPrefix}: IGNORING MY OWN COMMENT`)
       return
@@ -33,7 +43,7 @@ export async function onIssueComment(
       return
     }
     const issueText = context.payload.comment.body.trim()
-    console.log(`${repoPrefix}: NEW COMMENT ON ISSUE #${issueNr}:\n${firstLineWithPill(issueText)}`)
+    console.log(`${repoPrefix}: NEW COMMENT ON ISSUE #${state.issueNr}:\n${firstLineWithPill(issueText)}`)
     if (issueText === "") {
       console.log(`${repoPrefix}: EMPTY COMMENT`)
       return
@@ -56,13 +66,11 @@ export async function onIssueComment(
         return
       case "dev error":
         console.log(`${repoPrefix}: SIMULATING DEV ERROR`)
-        await logDevError(
-          new DevError("simulated error", new Error("underlying error"), { org, repo, issueID, issueNr })
-        )
+        await logDevError(new DevError("simulated error", new Error("underlying error"), state))
         return
       case "help":
         console.log(`${repoPrefix}: HELP COMMAND`)
-        await addComment(issueID, helpTemplate(), github)
+        await addComment({ ...state, text: helpTemplate() })
         return
       case "user error":
         console.log(`${repoPrefix}: SIMULATING USER ERROR`)
@@ -71,35 +79,41 @@ export async function onIssueComment(
             "simulated activity",
             `This is a simulated user error that you have requested by commenting "${issueText}".`,
             new Error("underlying error"),
-            { org, repo, issueID, issueNr }
+            state
           ),
-          github
+          state.github
         )
         return
       case undefined:
         console.log(`${repoPrefix}: MISSING COMMAND`)
-        await addCommentWithGuidance(issueID, `missing command`, helpTemplate(), github)
+        await addCommentWithGuidance({
+          ...state,
+          message: `missing command`,
+          guidance: helpTemplate(),
+        })
         return
       default:
         console.log(`${repoPrefix}: UNKNOWN PRETTIFIER COMMAND: ${botCommand}`)
-        await addCommentWithGuidance(issueID, `unknown command: ${botCommand}`, helpTemplate(), github)
+        await addCommentWithGuidance({
+          ...state,
+          message: `unknown command: ${botCommand}`,
+          guidance: helpTemplate(),
+        })
     }
   } catch (e) {
     console.log(`${repoPrefix}: ${e}`)
-    if (github) {
-      const devErr = new DevError(e.message, e, { org, repo, issueNr, issueID })
-      await logDevError(devErr)
-    }
+    const devErr = new DevError(e.message, e, state)
+    await logDevError(devErr)
   }
 }
 
-async function addCommentWithGuidance(
-  issueID: string,
-  message: string,
-  guidance: string,
+async function addCommentWithGuidance(args: {
   github: InstanceType<typeof probot.ProbotOctokit>
-) {
-  await addComment(issueID, `${message}\n\n${guidance}`, github)
+  guidance: string
+  issueId: string
+  message: string
+}) {
+  await addComment({ ...args, text: `${args.message}\n\n${args.guidance}` })
 }
 
 function helpTemplate(): string {

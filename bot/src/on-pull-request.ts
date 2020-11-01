@@ -2,6 +2,7 @@ import { RequestError } from "@octokit/request-error"
 import webhooks from "@octokit/webhooks"
 import * as prettier from "prettier"
 import * as probot from "probot"
+import { ProbotOctokit } from "probot"
 
 import { isConfigurationFile } from "./config/is-configuration-file"
 import { PrettifierConfiguration } from "./config/prettifier-configuration"
@@ -18,29 +19,46 @@ import { getPrettierConfig } from "./prettier/config"
 import { prettify } from "./prettier/prettify"
 import { renderTemplate } from "./template/render-template"
 
+export interface PullRequestState {
+  branch: string
+  github: InstanceType<typeof ProbotOctokit>
+  headOrg: string
+  org: string
+  prettierConfig: prettier.Options
+  prettierIgnore: string
+  prettifierConfig: PrettifierConfiguration
+  pullRequestId: string
+  pullRequestNumber: number
+  pullRequestURL: string
+  repo: string
+}
+
 /** called when this bot gets notified about a new pull request */
 export async function onPullRequest(
   context: probot.Context<webhooks.EventPayloads.WebhookPayloadPullRequest>
 ): Promise<void> {
-  let org = ""
-  let headOrg = ""
-  let repo = ""
-  let branch = ""
-  let pullRequestNumber = 0
-  let pullRequestId = ""
-  let pullRequestURL = ""
-  let prettierConfig: prettier.Options = {}
-  let prettifierConfig: PrettifierConfiguration = new PrettifierConfiguration({}, "")
-  let prettierIgnore = ""
+  const state: PullRequestState = {
+    github: context.github,
+    org: "",
+    headOrg: "",
+    repo: "",
+    branch: "",
+    pullRequestNumber: 0,
+    pullRequestId: "",
+    pullRequestURL: "",
+    prettierConfig: {},
+    prettifierConfig: new PrettifierConfiguration({}, ""),
+    prettierIgnore: "",
+  }
   try {
-    org = context.payload.repository.owner.login
-    headOrg = context.payload.pull_request.head.repo.owner.login
-    repo = context.payload.repository.name
-    branch = context.payload.pull_request.head.ref
-    pullRequestNumber = context.payload.pull_request.number
-    pullRequestId = context.payload.pull_request.node_id
-    pullRequestURL = context.payload.pull_request.html_url
-    const repoPrefix = `${org}/${repo}|#${pullRequestNumber}`
+    state.org = context.payload.repository.owner.login
+    state.headOrg = context.payload.pull_request.head.repo.owner.login
+    state.repo = context.payload.repository.name
+    state.branch = context.payload.pull_request.head.ref
+    state.pullRequestNumber = context.payload.pull_request.number
+    state.pullRequestId = context.payload.pull_request.node_id
+    state.pullRequestURL = context.payload.pull_request.html_url
+    const repoPrefix = `${state.org}/${state.repo}|#${state.pullRequestNumber}`
     console.log(`${repoPrefix}: PULL REQUEST DETECTED`)
 
     if (context.payload.action !== "opened") {
@@ -49,19 +67,19 @@ export async function onPullRequest(
     }
 
     // load additional information from GitHub
-    const pullRequestContextData = await loadPullRequestContextData(org, repo, branch, context.github)
-    prettifierConfig = PrettifierConfiguration.fromYML(
+    const pullRequestContextData = await loadPullRequestContextData(state)
+    state.prettifierConfig = PrettifierConfiguration.fromYML(
       pullRequestContextData.prettifierConfig,
       pullRequestContextData.prettierIgnore
     )
-    console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(prettifierConfig)}`)
-    prettierConfig = getPrettierConfig(pullRequestContextData)
-    console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(prettierConfig)}`)
-    prettierIgnore = pullRequestContextData.prettierIgnore
-    console.log(`${repoPrefix}: PRETTIER IGNORE: ${JSON.stringify(prettierIgnore)}`)
+    console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(state.prettifierConfig)}`)
+    state.prettierConfig = getPrettierConfig(pullRequestContextData)
+    console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(state.prettierConfig)}`)
+    state.prettierIgnore = pullRequestContextData.prettierIgnore
+    console.log(`${repoPrefix}: PRETTIER IGNORE: ${JSON.stringify(state.prettierIgnore)}`)
 
     // check whether this branch should be ignored
-    if (prettifierConfig.shouldIgnoreBranch(branch)) {
+    if (state.prettifierConfig.shouldIgnoreBranch(state.branch)) {
       console.log(`${repoPrefix}: IGNORING THIS BRANCH PER BOT CONFIG`)
       return
     }
@@ -69,7 +87,7 @@ export async function onPullRequest(
     // load the files that this PR changes
     let files: string[] = []
     try {
-      files = await getExistingFilesInPullRequests(org, repo, pullRequestNumber, context.github)
+      files = await getExistingFilesInPullRequests(state)
     } catch (e) {
       // can't load files of pull request for some reason --> abort
       console.log(`${repoPrefix}: CAN'T LOAD FILES OF PULL REQUEST:`, e)
@@ -84,7 +102,7 @@ export async function onPullRequest(
       }
       const filePrefix = `${repoPrefix}: FILE ${i + 1}/${files.length} (${filePath})`
       // ignore files that shouldn't be prettified
-      const shouldPrettify = await prettifierConfig.shouldPrettify(filePath)
+      const shouldPrettify = await state.prettifierConfig.shouldPrettify(filePath)
       if (!shouldPrettify) {
         console.log(`${filePrefix} - IGNORING`)
         continue
@@ -93,7 +111,7 @@ export async function onPullRequest(
       // load the file content
       let fileContent = ""
       try {
-        fileContent = await loadFile(headOrg, repo, branch, filePath, context.github)
+        fileContent = await loadFile({ ...state, org: state.headOrg, filePath })
       } catch (e) {
         if (e instanceof RequestError) {
           if (e.status === 403) {
@@ -109,7 +127,7 @@ export async function onPullRequest(
       }
 
       // prettify the file content
-      const prettierConfigForFile = applyPrettierConfigOverrides(prettierConfig, filePath)
+      const prettierConfigForFile = applyPrettierConfigOverrides(state.prettierConfig, filePath)
       const formatted = prettify(fileContent, filePath, prettierConfigForFile)
 
       // ignore if there are no changes
@@ -119,17 +137,17 @@ export async function onPullRequest(
       }
 
       // store the prettified content
-      prettifiedFiles.push({ path: filePath, content: formatted })
+      prettifiedFiles.push({ path: filePath, old: fileContent, formatted })
       console.log(`${filePrefix} - PRETTIFYING`)
     }
 
     // verify correct config changes
     if (configChange) {
-      await addComment(
-        pullRequestId,
-        "Prettifier-Bot here. The configuration changes made in this pull request look good to me.",
-        context.github
-      )
+      await addComment({
+        ...state,
+        issueId: state.pullRequestId,
+        text: "Prettifier-Bot here. The configuration changes made in this pull request look good to me.",
+      })
       console.log(`${repoPrefix}: ADDED CONFIG CHANGE DEBUG COMMENT`)
     }
 
@@ -139,10 +157,10 @@ export async function onPullRequest(
       return
     }
 
-    const isPullRequestFromFork = headOrg !== org
+    const isPullRequestFromFork = state.headOrg !== state.org
     if (isPullRequestFromFork) {
-      const text = renderTemplate(await prettifierConfig.welcome(), { files: prettifiedFiles.map(f => f.path) })
-      await addComment(pullRequestId, text, context.github)
+      const text = renderTemplate(await state.prettifierConfig.welcome(), { files: prettifiedFiles.map(f => f.path) })
+      await addComment({ ...state, issueId: state.pullRequestId, text })
       console.log(`${repoPrefix}: COMMENTED ON PULL REQUEST FROM FORK`)
       return
     }
@@ -150,15 +168,14 @@ export async function onPullRequest(
     // create a commit
     try {
       await createCommit({
-        branch,
-        github: context.github,
-        files: prettifiedFiles,
-        message: renderTemplate(await prettifierConfig.commitMessage(), {
-          files: prettifiedFiles.map(f => f.path),
-          commitSha: branch,
+        ...state,
+        files: prettifiedFiles.map(f => {
+          return { path: f.path, content: f.formatted }
         }),
-        org,
-        repo,
+        message: renderTemplate(await state.prettifierConfig.commitMessage(), {
+          files: prettifiedFiles.map(f => f.path),
+          commitSha: state.branch,
+        }),
       })
       console.log(`${repoPrefix}: COMMITTED ${prettifiedFiles.length} PRETTIFIED FILES`)
     } catch (e) {
@@ -195,8 +212,8 @@ export async function onPullRequest(
     }
 
     // add community comment
-    if (prettifierConfig.commentTemplate !== "") {
-      await addComment(pullRequestId, prettifierConfig.commentTemplate, context.github)
+    if (state.prettifierConfig.commentTemplate !== "") {
+      await addComment({ ...state, issueId: state.pullRequestId, text: state.prettifierConfig.commentTemplate })
       console.log(`${repoPrefix}: ADDED COMMUNITY COMMENT`)
     }
   } catch (e) {
@@ -204,16 +221,9 @@ export async function onPullRequest(
       return
     }
     const errorContext = {
+      ...state,
       event: "on-pull-request",
-      org,
-      repo,
-      branch,
-      pullRequestURL,
-      pullRequestId,
       payload: context.payload,
-      prettierConfig,
-      prettifierConfig,
-      prettierIgnore,
     }
     if (e instanceof UserError) {
       e.enrich(errorContext)

@@ -3,14 +3,18 @@ import path from "path"
 import { ProbotOctokit } from "probot"
 
 /** returns whether the given pull request already has a comment from PrettifierBot */
-export async function hasCommentFromPrettifier(
-  org: string,
-  repo: string,
-  pullrequest: number,
+export async function hasCommentFromPrettifier(args: {
   github: InstanceType<typeof ProbotOctokit>
-): Promise<boolean> {
+  org: string
+  pullRequestNumber: number
+  repo: string
+}): Promise<boolean> {
   const query = await fs.readFile(path.join("src", "github", "pullrequest-comment-authors.graphql"), "utf-8")
-  const callResult: any = await github.graphql(query, { org, repo, pullrequest })
+  const callResult: any = await args.github.graphql(query, {
+    org: args.org,
+    repo: args.repo,
+    pullrequest: args.pullRequestNumber,
+  })
   for (const comment of callResult?.repository.pullRequest.comments.nodes) {
     if (comment.author.login === "prettifier") {
       return true
