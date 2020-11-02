@@ -51,6 +51,7 @@ export async function onPullRequest(
     prettierIgnore: "",
   }
   try {
+    // NOTE: loading this inside the try block to log rich errors when the payload changes
     state.org = context.payload.repository.owner.login
     state.headOrg = context.payload.pull_request.head.repo.owner.login
     state.repo = context.payload.repository.name

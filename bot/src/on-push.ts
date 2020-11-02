@@ -54,6 +54,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
   let currentFile = ""
   let prettierConfigForFile: prettier.Options = {}
   try {
+    // NOTE: loading this inside the try block to log rich errors when the payload changes
     state.org = context.payload.repository.owner.login
     state.repo = context.payload.repository.name
     state.branch = context.payload.ref.replace("refs/heads/", "")

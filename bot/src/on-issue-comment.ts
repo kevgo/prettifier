@@ -29,6 +29,7 @@ export async function onIssueComment(
   }
   let repoPrefix = ""
   try {
+    // NOTE: loading this inside the try block to log rich errors when the payload changes
     state.org = context.payload.repository.owner.login
     state.repo = context.payload.repository.name
     state.issueId = context.payload.issue.node_id
