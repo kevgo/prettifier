@@ -2,7 +2,7 @@ import { promises as fs } from "fs"
 import path from "path"
 
 import { PullRequestState } from "../on-pull-request"
-import { PrettierConfigResult } from "../prettier/config"
+import * as prettier from "../prettier/config"
 
 /** fields unique to pull request contexts */
 interface PullRequestContextUnique {
@@ -11,7 +11,7 @@ interface PullRequestContextUnique {
 }
 
 /** the payload of loading additional pull request data via the GraphQL API */
-export type PullRequestContextData = PullRequestContextUnique & PrettierConfigResult
+export type PullRequestContextData = PullRequestContextUnique & prettier.ConfigResult
 
 export async function loadPullRequestContextData(state: PullRequestState): Promise<PullRequestContextData> {
   let query = await fs.readFile(path.join("src", "github", "pull-request-context.graphql"), "utf-8")

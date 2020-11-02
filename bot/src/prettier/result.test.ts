@@ -1,10 +1,10 @@
 import { assert } from "chai"
 
-import { PrettifiedFiles } from "./prettified-files"
+import * as prettier from "."
 
-suite("PrettifiedFiles", function () {
+suite("prettier.Result", function () {
   test("paths", function () {
-    const pfs = new PrettifiedFiles()
+    const pfs = new prettier.Result()
     pfs.push({ path: "two.md", old: "", formatted: "" })
     pfs.push({ path: "one.md", old: "", formatted: "" })
     const have = pfs.paths()

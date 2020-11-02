@@ -11,7 +11,7 @@ export interface PrettifiedFile {
 }
 
 /** list of files that were prettified */
-export class PrettifiedFiles extends Array<PrettifiedFile> {
+export class Result extends Array<PrettifiedFile> {
   paths(): string[] {
     return this.map(pf => pf.path).sort()
   }

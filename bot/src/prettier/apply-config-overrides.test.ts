@@ -1,6 +1,6 @@
 import { assert } from "chai"
 
-import { applyPrettierConfigOverrides } from "./apply-prettier-config-overrides"
+import { applyConfigOverrides } from "./apply-config-overrides"
 
 suite("applyPrettierConfigOverrides", function () {
   test("no override", function () {
@@ -9,7 +9,7 @@ suite("applyPrettierConfigOverrides", function () {
       proseWrap: "always",
       semi: false,
     }
-    const overridden = applyPrettierConfigOverrides(config, "README.md")
+    const overridden = applyConfigOverrides(config, "README.md")
     assert.deepEqual(overridden, {
       printWidth: 120,
       proseWrap: "always",
@@ -29,7 +29,7 @@ suite("applyPrettierConfigOverrides", function () {
       proseWrap: "always",
       semi: false,
     }
-    let overridden = applyPrettierConfigOverrides(config, "README.md")
+    let overridden = applyConfigOverrides(config, "README.md")
     assert.deepEqual(
       {
         printWidth: 80,
@@ -38,7 +38,7 @@ suite("applyPrettierConfigOverrides", function () {
       },
       overridden
     )
-    overridden = applyPrettierConfigOverrides(config, "bot/README.md")
+    overridden = applyConfigOverrides(config, "bot/README.md")
     assert.deepEqual(
       {
         printWidth: 80,

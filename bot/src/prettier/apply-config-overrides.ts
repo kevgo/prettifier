@@ -1,7 +1,7 @@
 import minimatch from "minimatch"
 import prettier from "prettier"
 
-export function applyPrettierConfigOverrides(config: Record<string, any>, filename: string): prettier.Options {
+export function applyConfigOverrides(config: Record<string, any>, filename: string): prettier.Options {
   if (!config.overrides) {
     return config
   }

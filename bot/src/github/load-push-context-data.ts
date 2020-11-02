@@ -3,7 +3,7 @@ import path from "path"
 import { ProbotOctokit } from "probot"
 
 import { DevError } from "../logging/dev-error"
-import { PrettierConfigResult } from "../prettier/config"
+import * as prettier from "../prettier/config"
 
 /** fields unique to push contexts */
 interface PushContextUnique {
@@ -15,7 +15,7 @@ interface PushContextUnique {
 }
 
 /** the payload of loading additional push data via the GraphQL API */
-export type PushContextData = PushContextUnique & PrettierConfigResult
+export type PushContextData = PushContextUnique & prettier.ConfigResult
 
 export async function loadPushContextData(args: {
   branch: string

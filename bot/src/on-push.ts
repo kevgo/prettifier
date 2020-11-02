@@ -1,6 +1,5 @@
 import { RequestError } from "@octokit/request-error"
 import webhooks from "@octokit/webhooks"
-import * as prettier from "prettier"
 import * as probot from "probot"
 import { ProbotOctokit } from "probot"
 
@@ -15,9 +14,7 @@ import { concatToSet, removeAllFromSet } from "./helpers/set-tools"
 import { DevError, logDevError } from "./logging/dev-error"
 import { LoggedError } from "./logging/logged-error"
 import { logUserError, UserError } from "./logging/user-error"
-import { applyPrettierConfigOverrides } from "./prettier/apply-prettier-config-overrides"
-import { getPrettierConfig } from "./prettier/config"
-import { prettify } from "./prettier/prettify"
+import * as prettier from "./prettier"
 import * as templates from "./templates"
 
 interface PushState {
@@ -91,7 +88,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     state.prettierIgnore = pushContextData.prettierIgnore
     state.prettifierConfig = PrettifierConfiguration.fromYML(pushContextData.prettifierConfig, state.prettierIgnore)
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(state.prettifierConfig)}`)
-    state.prettierConfig = getPrettierConfig(pushContextData)
+    state.prettierConfig = prettier.loadConfig(pushContextData)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(state.prettierConfig)}`)
 
     // check whether this branch should be ignored
@@ -157,8 +154,8 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       }
 
       // prettify the file
-      prettierConfigForFile = applyPrettierConfigOverrides(state.prettierConfig, currentFile)
-      const formatted = prettify(fileContent, currentFile, prettierConfigForFile)
+      prettierConfigForFile = prettier.applyConfigOverrides(state.prettierConfig, currentFile)
+      const formatted = prettier.format(fileContent, currentFile, prettierConfigForFile)
 
       // ignore if there are no changes
       if (formatted === fileContent) {

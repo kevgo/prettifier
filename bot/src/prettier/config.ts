@@ -5,7 +5,7 @@ import prettier from "prettier"
 
 import { UserError } from "../logging/user-error"
 
-export interface PrettierConfigResult {
+export interface ConfigResult {
   package_json: string
   prettierrc: string
   prettierrc_json: string
@@ -15,17 +15,17 @@ export interface PrettierConfigResult {
   prettierrc_yml: string
 }
 
-export function getPrettierConfig(result: PrettierConfigResult): prettier.Options {
+export function loadConfig(result: ConfigResult): prettier.Options {
   return (
-    loadConfig(result.prettierrc, ".prettierrc", parseYML) ||
+    loadConfigFile(result.prettierrc, ".prettierrc", parseYML) ||
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    loadConfig(result.prettierrc_json, ".prettierrc.json", JSON5.parse) ||
+    loadConfigFile(result.prettierrc_json, ".prettierrc.json", JSON5.parse) ||
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    loadConfig(result.prettierrc_json5, ".prettierrc.json5", JSON5.parse) ||
-    loadConfig(result.prettierrc_toml, ".prettierrc.toml", TOML.parse) ||
-    loadConfig(result.prettierrc_yml, ".prettierrc.yml", parseYML) ||
-    loadConfig(result.prettierrc_yaml, ".prettierrc.yaml", parseYML) ||
-    loadConfig(result.package_json, "package.json", parsePackageJson) ||
+    loadConfigFile(result.prettierrc_json5, ".prettierrc.json5", JSON5.parse) ||
+    loadConfigFile(result.prettierrc_toml, ".prettierrc.toml", TOML.parse) ||
+    loadConfigFile(result.prettierrc_yml, ".prettierrc.yml", parseYML) ||
+    loadConfigFile(result.prettierrc_yaml, ".prettierrc.yaml", parseYML) ||
+    loadConfigFile(result.package_json, "package.json", parsePackageJson) ||
     {}
   )
 }
@@ -34,7 +34,7 @@ function parseYML(text: string): Record<string, unknown> {
   return yml.safeLoad(text) as Record<string, unknown>
 }
 
-function loadConfig(
+function loadConfigFile(
   configText: string,
   filename: string,
   loader: (text: string, ...others: any) => Record<string, unknown>

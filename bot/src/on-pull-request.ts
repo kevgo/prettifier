@@ -1,6 +1,5 @@
 import { RequestError } from "@octokit/request-error"
 import webhooks from "@octokit/webhooks"
-import * as prettier from "prettier"
 import * as probot from "probot"
 import { ProbotOctokit } from "probot"
 
@@ -14,10 +13,7 @@ import { loadPullRequestContextData } from "./github/load-pull-request-context-d
 import { DevError, logDevError } from "./logging/dev-error"
 import { LoggedError } from "./logging/logged-error"
 import { logUserError, UserError } from "./logging/user-error"
-import { applyPrettierConfigOverrides } from "./prettier/apply-prettier-config-overrides"
-import { getPrettierConfig } from "./prettier/config"
-import { PrettifiedFiles } from "./prettier/prettified-files"
-import { prettify } from "./prettier/prettify"
+import * as prettier from "./prettier"
 import * as templates from "./templates"
 
 export interface PullRequestState {
@@ -75,7 +71,7 @@ export async function onPullRequest(
       pullRequestContextData.prettierIgnore
     )
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(state.prettifierConfig)}`)
-    state.prettierConfig = getPrettierConfig(pullRequestContextData)
+    state.prettierConfig = prettier.loadConfig(pullRequestContextData)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(state.prettierConfig)}`)
     state.prettierIgnore = pullRequestContextData.prettierIgnore
     console.log(`${repoPrefix}: PRETTIER IGNORE: ${JSON.stringify(state.prettierIgnore)}`)
@@ -95,7 +91,7 @@ export async function onPullRequest(
       console.log(`${repoPrefix}: CAN'T LOAD FILES OF PULL REQUEST:`, e)
       return
     }
-    const prettifiedFiles = new PrettifiedFiles()
+    const prettifiedFiles = new prettier.Result()
     let configChange = false
     for (let i = 0; i < files.length; i++) {
       const filePath = files[i]
@@ -129,8 +125,8 @@ export async function onPullRequest(
       }
 
       // prettify the file content
-      const prettierConfigForFile = applyPrettierConfigOverrides(state.prettierConfig, filePath)
-      const formatted = prettify(fileContent, filePath, prettierConfigForFile)
+      const prettierConfigForFile = prettier.applyConfigOverrides(state.prettierConfig, filePath)
+      const formatted = prettier.format(fileContent, filePath, prettierConfigForFile)
 
       // ignore if there are no changes
       if (formatted === fileContent) {

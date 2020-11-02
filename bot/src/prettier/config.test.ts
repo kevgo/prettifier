@@ -2,12 +2,12 @@ import { assert } from "chai"
 
 import { PushContextData } from "../github/load-push-context-data"
 import { UserError } from "../logging/user-error"
-import { getPrettierConfig } from "./config"
+import * as prettier from "."
 
 suite("getPrettierConfig", function () {
   test("none given", function () {
     const give = scaffoldPushContextData()
-    const have = getPrettierConfig(give)
+    const have = prettier.loadConfig(give)
     assert.deepEqual(have, {})
   })
 
@@ -20,7 +20,7 @@ suite("getPrettierConfig", function () {
   }
 }`,
     })
-    const have = getPrettierConfig(give)
+    const have = prettier.loadConfig(give)
     const want = { semi: false }
     assert.deepEqual(have, want)
   })
@@ -32,7 +32,7 @@ suite("getPrettierConfig", function () {
   "prettier": {}
 }`,
     })
-    const have = getPrettierConfig(give)
+    const have = prettier.loadConfig(give)
     assert.deepEqual(have, {})
   })
 
@@ -42,92 +42,92 @@ suite("getPrettierConfig", function () {
   "name": "foo"
 }`,
     })
-    const have = getPrettierConfig(give)
+    const have = prettier.loadConfig(give)
     assert.deepEqual(have, {})
   })
 
   test("package_json with invalid content", function () {
     const give = scaffoldPushContextData({ package_json: `"semi` })
-    assert.throws(() => getPrettierConfig(give), UserError)
+    assert.throws(() => prettier.loadConfig(give), UserError)
   })
 
   test("prettierrc with valid JSON content", function () {
     const give = scaffoldPushContextData({ prettierrc: `{ "semi": false }` })
-    const have = getPrettierConfig(give)
+    const have = prettier.loadConfig(give)
     const want = { semi: false }
     assert.deepEqual(have, want)
   })
 
   test("prettierrc with valid YML content", function () {
     const give = scaffoldPushContextData({ prettierrc: `semi: false` })
-    const have = getPrettierConfig(give)
+    const have = prettier.loadConfig(give)
     const want = { semi: false }
     assert.deepEqual(have, want)
   })
 
   test("prettierrc with invalid content", function () {
     const give = scaffoldPushContextData({ prettierrc: `{ "semi` })
-    assert.throws(() => getPrettierConfig(give), UserError)
+    assert.throws(() => prettier.loadConfig(give), UserError)
   })
 
   test("prettierrc_json with valid content", function () {
     const give = scaffoldPushContextData({ prettierrc_json: `{ "semi": false }` })
-    const have = getPrettierConfig(give)
+    const have = prettier.loadConfig(give)
     const want = { semi: false }
     assert.deepEqual(have, want)
   })
 
   test("prettierrc_json with invalid content", function () {
     const give = scaffoldPushContextData({ prettierrc_json: `{ "semi` })
-    assert.throws(() => getPrettierConfig(give), UserError)
+    assert.throws(() => prettier.loadConfig(give), UserError)
   })
 
   test("prettierrc_json5 with valid content", function () {
     const give = scaffoldPushContextData({ prettierrc_json5: `{ 'semi': false \n // comment\n }` })
-    const have = getPrettierConfig(give)
+    const have = prettier.loadConfig(give)
     const want = { semi: false }
     assert.deepEqual(have, want)
   })
 
   test("prettierrc_json5 with invalid content", function () {
     const give = scaffoldPushContextData({ prettierrc_json5: `{ "semi` })
-    assert.throws(() => getPrettierConfig(give), UserError)
+    assert.throws(() => prettier.loadConfig(give), UserError)
   })
 
   test("prettierrc_toml with valid content", function () {
     const give = scaffoldPushContextData({ prettierrc_toml: `semi = false` })
-    const have = getPrettierConfig(give)
+    const have = prettier.loadConfig(give)
     const want = { semi: false }
     assert.deepEqual(have, want)
   })
 
   test("prettierrc_toml with invalid content", function () {
     const give = scaffoldPushContextData({ prettierrc_toml: `{ semi =` })
-    assert.throws(() => getPrettierConfig(give), UserError)
+    assert.throws(() => prettier.loadConfig(give), UserError)
   })
 
   test("prettierrc_yml with valid content", function () {
     const give = scaffoldPushContextData({ prettierrc_yml: `semi: false` })
-    const have = getPrettierConfig(give)
+    const have = prettier.loadConfig(give)
     const want = { semi: false }
     assert.deepEqual(have, want)
   })
 
   test("prettierrc_yml with invalid content", function () {
     const give = scaffoldPushContextData({ prettierrc_yml: `"semi` })
-    assert.throws(() => getPrettierConfig(give), UserError)
+    assert.throws(() => prettier.loadConfig(give), UserError)
   })
 
   test("prettierrc_yaml with valid content", function () {
     const give = scaffoldPushContextData({ prettierrc_yaml: `semi: false` })
-    const have = getPrettierConfig(give)
+    const have = prettier.loadConfig(give)
     const want = { semi: false }
     assert.deepEqual(have, want)
   })
 
   test("prettierrc_yaml with invalid content", function () {
     const give = scaffoldPushContextData({ prettierrc_yaml: `"semi` })
-    assert.throws(() => getPrettierConfig(give), UserError)
+    assert.throws(() => prettier.loadConfig(give), UserError)
   })
 })
 
