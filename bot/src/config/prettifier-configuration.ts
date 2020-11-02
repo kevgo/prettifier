@@ -117,7 +117,7 @@ export class PrettifierConfiguration {
     return true
   }
 
-  async commitMessage(): Promise<string> {
+  async commitMessageTemplate(): Promise<string> {
     if (this.customCommitMessage !== "") {
       return this.customCommitMessage
     }

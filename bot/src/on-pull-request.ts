@@ -173,7 +173,7 @@ export async function onPullRequest(
         files: prettifiedFiles.map(f => {
           return { path: f.path, content: f.formatted }
         }),
-        message: renderTemplate(await state.prettifierConfig.commitMessage(), {
+        message: renderTemplate(await state.prettifierConfig.commitMessageTemplate(), {
           files: prettifiedFiles.map(f => f.path),
           commitSha: state.branch,
         }),

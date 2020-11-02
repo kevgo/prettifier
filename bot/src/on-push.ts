@@ -183,7 +183,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       await createCommit({
         ...state,
         files: prettifiedFiles,
-        message: renderTemplate(await state.prettifierConfig.commitMessage(), {
+        message: renderTemplate(await state.prettifierConfig.commitMessageTemplate(), {
           commitSha: state.commitSha,
           files: prettifiedFiles.map(f => f.path),
         }),
@@ -234,7 +234,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       body: "Formats recently committed files. No content changes.",
       branch: `prettifier-${state.commitSha}`,
       files: prettifiedFiles,
-      message: renderTemplate(await state.prettifierConfig.commitMessage(), {
+      message: renderTemplate(await state.prettifierConfig.commitMessageTemplate(), {
         commitSha: state.commitSha,
         files: prettifiedFiles.map(f => f.path),
       }),
