@@ -18,7 +18,7 @@ import { applyPrettierConfigOverrides } from "./prettier/apply-prettier-config-o
 import { getPrettierConfig } from "./prettier/config"
 import { PrettifiedFiles } from "./prettier/prettified-files"
 import { prettify } from "./prettier/prettify"
-import { renderTemplate } from "./template/render-template"
+import * as templates from "./templates"
 
 export interface PullRequestState {
   branch: string
@@ -161,7 +161,7 @@ export async function onPullRequest(
 
     const isPullRequestFromFork = state.headOrg !== state.org
     if (isPullRequestFromFork) {
-      const text = renderTemplate(await state.prettifierConfig.welcome(), { files: prettifiedFiles.paths() })
+      const text = templates.render(await state.prettifierConfig.welcome(), { files: prettifiedFiles.paths() })
       await addComment({ ...state, issueId: state.pullRequestId, text })
       console.log(`${repoPrefix}: COMMENTED ON PULL REQUEST FROM FORK`)
       return
@@ -174,7 +174,7 @@ export async function onPullRequest(
         files: prettifiedFiles.map(f => {
           return { path: f.path, content: f.formatted }
         }),
-        message: renderTemplate(await state.prettifierConfig.commitMessageTemplate(), {
+        message: templates.render(await state.prettifierConfig.commitMessageTemplate(), {
           files: prettifiedFiles.map(f => f.path),
           commitSha: state.branch,
         }),

@@ -9,7 +9,7 @@ interface Placeholders {
   files?: string[]
 }
 
-export function renderTemplate(template: string, placeholders: Placeholders): string {
+export function render(template: string, placeholders: Placeholders): string {
   const data = placeholders as any
   data.PrettifierLink = "[Prettifier](https://prettifier.io)"
   data.PrettifierContactURL = "https://github.com/kevgo/prettifier/issues/new"

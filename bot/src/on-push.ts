@@ -18,7 +18,7 @@ import { logUserError, UserError } from "./logging/user-error"
 import { applyPrettierConfigOverrides } from "./prettier/apply-prettier-config-overrides"
 import { getPrettierConfig } from "./prettier/config"
 import { prettify } from "./prettier/prettify"
-import { renderTemplate } from "./template/render-template"
+import * as templates from "./templates"
 
 interface PushState {
   author: string
@@ -183,7 +183,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       await createCommit({
         ...state,
         files: prettifiedFiles,
-        message: renderTemplate(await state.prettifierConfig.commitMessageTemplate(), {
+        message: templates.render(await state.prettifierConfig.commitMessageTemplate(), {
           commitSha: state.commitSha,
           files: prettifiedFiles.map(f => f.path),
         }),
@@ -201,7 +201,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
           await addComment({
             ...state,
             issueId: state.pullRequestId,
-            text: renderTemplate(state.prettifierConfig.commentTemplate, {
+            text: templates.render(state.prettifierConfig.commentTemplate, {
               commitSha: state.commitSha,
               files: prettifiedFiles.map(f => f.path),
             }),
@@ -234,7 +234,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       body: "Formats recently committed files. No content changes.",
       branch: `prettifier-${state.commitSha}`,
       files: prettifiedFiles,
-      message: renderTemplate(await state.prettifierConfig.commitMessageTemplate(), {
+      message: templates.render(await state.prettifierConfig.commitMessageTemplate(), {
         commitSha: state.commitSha,
         files: prettifiedFiles.map(f => f.path),
       }),
