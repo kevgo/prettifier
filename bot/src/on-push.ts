@@ -264,6 +264,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       await logUserError(e, context.github)
       return
     }
-    await logDevError(e)
+
+    await logDevError(new DevError("unknown dev error", e, errorContext))
   }
 }

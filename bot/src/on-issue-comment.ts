@@ -103,8 +103,7 @@ export async function onIssueComment(
     }
   } catch (e) {
     console.log(`${repoPrefix}: ${e}`)
-    const devErr = new DevError(e.message, e, state)
-    await logDevError(devErr)
+    await logDevError(new DevError(e.message, e, state))
   }
 }
 
