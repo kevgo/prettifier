@@ -16,6 +16,7 @@ import { LoggedError } from "./logging/logged-error"
 import { logUserError, UserError } from "./logging/user-error"
 import { applyPrettierConfigOverrides } from "./prettier/apply-prettier-config-overrides"
 import { getPrettierConfig } from "./prettier/config"
+import { PrettifiedFiles } from "./prettier/prettified-files"
 import { prettify } from "./prettier/prettify"
 import { renderTemplate } from "./template/render-template"
 
@@ -94,7 +95,7 @@ export async function onPullRequest(
       console.log(`${repoPrefix}: CAN'T LOAD FILES OF PULL REQUEST:`, e)
       return
     }
-    const prettifiedFiles = []
+    const prettifiedFiles = new PrettifiedFiles()
     let configChange = false
     for (let i = 0; i < files.length; i++) {
       const filePath = files[i]
@@ -160,7 +161,7 @@ export async function onPullRequest(
 
     const isPullRequestFromFork = state.headOrg !== state.org
     if (isPullRequestFromFork) {
-      const text = renderTemplate(await state.prettifierConfig.welcome(), { files: prettifiedFiles.map(f => f.path) })
+      const text = renderTemplate(await state.prettifierConfig.welcome(), { files: prettifiedFiles.paths() })
       await addComment({ ...state, issueId: state.pullRequestId, text })
       console.log(`${repoPrefix}: COMMENTED ON PULL REQUEST FROM FORK`)
       return
