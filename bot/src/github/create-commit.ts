@@ -9,8 +9,8 @@ export interface FileToCreate {
 export async function createCommit(args: {
   branch: string
   files: FileToCreate[]
-  github: InstanceType<typeof ProbotOctokit>
   message: string
+  octokit: InstanceType<typeof ProbotOctokit>
   org: string
   repo: string
 }): Promise<void> {
@@ -19,7 +19,7 @@ export async function createCommit(args: {
   //       when trying to create a commit in a protected branch.
 
   // get the SHA of the latest commit in the branch
-  const getRefResult = await args.github.git.getRef({
+  const getRefResult = await args.octokit.git.getRef({
     owner: args.org,
     ref: `heads/${args.branch}`,
     repo: args.repo,
@@ -27,7 +27,7 @@ export async function createCommit(args: {
   const currentCommitSha = getRefResult.data.object.sha
 
   // get the SHA of the tree of the commit
-  const getCommitResult = await args.github.git.getCommit({
+  const getCommitResult = await args.octokit.git.getCommit({
     commit_sha: currentCommitSha,
     owner: args.org,
     repo: args.repo,
@@ -37,7 +37,7 @@ export async function createCommit(args: {
   // upload the file contents
   const fileBlobs: GitCreateBlobResponseData[] = []
   for (const file of args.files) {
-    const response = await args.github.git.createBlob({
+    const response = await args.octokit.git.createBlob({
       content: file.content,
       encoding: "utf-8",
       owner: args.org,
@@ -56,7 +56,7 @@ export async function createCommit(args: {
       type: "blob",
     })
   }
-  const createTreeResult = await args.github.git.createTree({
+  const createTreeResult = await args.octokit.git.createTree({
     base_tree: treeSha,
     owner: args.org,
     repo: args.repo,
@@ -64,7 +64,7 @@ export async function createCommit(args: {
   })
 
   // create the new commit
-  const newCommitResult = await args.github.git.createCommit({
+  const newCommitResult = await args.octokit.git.createCommit({
     message: args.message,
     owner: args.org,
     parents: [currentCommitSha],
@@ -74,7 +74,7 @@ export async function createCommit(args: {
   const newCommitSha = newCommitResult.data.sha
 
   // update the branch to point to the new commit
-  await args.github.git.updateRef({
+  await args.octokit.git.updateRef({
     owner: args.org,
     ref: `heads/${args.branch}`,
     repo: args.repo,

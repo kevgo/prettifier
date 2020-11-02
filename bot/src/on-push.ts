@@ -4,12 +4,7 @@ import * as probot from "probot"
 import { ProbotOctokit } from "probot"
 
 import { PrettifierConfiguration } from "./config/prettifier-configuration"
-import { addComment } from "./github/add-comment"
-import { createCommit } from "./github/create-commit"
-import { createPullRequest } from "./github/create-pull-request"
-import { hasCommentFromPrettifier } from "./github/has-comment-from-prettifier"
-import { loadFile } from "./github/load-file"
-import { loadPushContextData, PushContextData } from "./github/load-push-context-data"
+import * as github from "./github"
 import { concatToSet, removeAllFromSet } from "./helpers/set-tools"
 import { DevError, logDevError } from "./logging/dev-error"
 import { LoggedError } from "./logging/logged-error"
@@ -21,7 +16,7 @@ interface PushState {
   author: string
   branch: string
   commitSha: string
-  github: InstanceType<typeof ProbotOctokit>
+  octokit: InstanceType<typeof ProbotOctokit>
   org: string
   prettierConfig: prettier.Options
   prettierIgnore: string
@@ -44,7 +39,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     prettierConfig: {},
     prettifierConfig: new PrettifierConfiguration({}, ""),
     prettierIgnore: "",
-    github: context.github,
+    octokit: context.github,
   }
   const changedFiles = new Set<string>()
   const prettifiedFiles = []
@@ -75,9 +70,9 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     }
 
     // load additional information from GitHub
-    let pushContextData: PushContextData
+    let pushContextData: github.PushContextData
     try {
-      pushContextData = await loadPushContextData(state)
+      pushContextData = await github.loadPushContextData(state)
     } catch (e) {
       // can't load push context for some reason, like missing permissions --> abort
       console.log(`${repoPrefix}: CAN'T LOAD PUSH CONTEXT:`, e)
@@ -137,7 +132,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       // load the file content
       let fileContent = ""
       try {
-        fileContent = await loadFile({ ...state, filePath: currentFile })
+        fileContent = await github.loadFile({ ...state, filePath: currentFile })
       } catch (e) {
         if (e instanceof RequestError) {
           const requestError = e
@@ -177,7 +172,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     // try creating a commit
     let createCommitError: Error | null = null
     try {
-      await createCommit({
+      await github.createCommit({
         ...state,
         files: prettifiedFiles,
         message: templates.render(await state.prettifierConfig.commitMessageTemplate(), {
@@ -193,9 +188,9 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
 
     if (!createCommitError && state.prettifierConfig.commentTemplate !== "") {
       if (state.pullRequestId !== "") {
-        const hasComment = await hasCommentFromPrettifier(state)
+        const hasComment = await github.hasCommentFromPrettifier(state)
         if (!hasComment) {
-          await addComment({
+          await github.addComment({
             ...state,
             issueId: state.pullRequestId,
             text: templates.render(state.prettifierConfig.commentTemplate, {
@@ -226,7 +221,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     }
 
     // try creating a pull request
-    await createPullRequest({
+    await github.createPullRequest({
       ...state,
       body: "Formats recently committed files. No content changes.",
       branch: `prettifier-${state.commitSha}`,

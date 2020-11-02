@@ -1,6 +1,6 @@
 import { assert } from "chai"
 
-import { PushContextData } from "../github/load-push-context-data"
+import * as github from "../github"
 import { UserError } from "../logging/user-error"
 import * as prettier from "."
 
@@ -131,7 +131,7 @@ suite("getPrettierConfig", function () {
   })
 })
 
-function scaffoldPushContextData(testData: Partial<PushContextData> = {}): PushContextData {
+function scaffoldPushContextData(testData: Partial<github.PushContextData> = {}): PushContextData {
   const result = {
     prettierIgnore: "",
     package_json: "",

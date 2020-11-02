@@ -16,7 +16,7 @@ export type PullRequestContextData = PullRequestContextUnique & prettier.ConfigR
 export async function loadPullRequestContextData(state: PullRequestState): Promise<PullRequestContextData> {
   let query = await fs.readFile(path.join("src", "github", "pull-request-context.graphql"), "utf-8")
   query = query.replace(/\{\{branch\}\}/g, state.branch)
-  const callResult: any = await state.github.graphql(query, { org: state.org, repo: state.repo, branch: state.branch })
+  const callResult: any = await state.octokit.graphql(query, { org: state.org, repo: state.repo, branch: state.branch })
   return {
     prettifierConfig: callResult?.repository.prettifierConfig?.text || "",
     package_json: callResult?.repository.package_json?.text || "",

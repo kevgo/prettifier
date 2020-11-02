@@ -19,13 +19,13 @@ export type PushContextData = PushContextUnique & prettier.ConfigResult
 
 export async function loadPushContextData(args: {
   branch: string
-  github: InstanceType<typeof ProbotOctokit>
+  octokit: InstanceType<typeof ProbotOctokit>
   org: string
   repo: string
 }): Promise<PushContextData> {
   let query = await fs.readFile(path.join("src", "github", "push-context.graphql"), "utf-8")
   query = query.replace(/\{\{branch\}\}/g, args.branch)
-  const callResult: any = await args.github.graphql(query, {
+  const callResult: any = await args.octokit.graphql(query, {
     org: args.org,
     repo: args.repo,
     branch: args.branch,

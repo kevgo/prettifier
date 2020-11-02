@@ -9,15 +9,15 @@ export async function createPullRequest(args: {
   body: string
   branch: string
   files: FileToCreate[]
-  github: InstanceType<typeof ProbotOctokit>
   message: string
+  octokit: InstanceType<typeof ProbotOctokit>
   org: string
   parentBranch: string
   repo: string
 }): Promise<void> {
   // get the SHA of the latest commit in the parent branch
   try {
-    const getRefResult = await args.github.git.getRef({
+    const getRefResult = await args.octokit.git.getRef({
       owner: args.org,
       ref: `heads/${args.parentBranch}`,
       repo: args.repo,
@@ -25,7 +25,7 @@ export async function createPullRequest(args: {
     const parentBranchSHA = getRefResult.data.object.sha
 
     // create a branch for the changes
-    await args.github.git.createRef({
+    await args.octokit.git.createRef({
       owner: args.org,
       ref: `refs/heads/${args.branch}`,
       repo: args.repo,
@@ -36,7 +36,7 @@ export async function createPullRequest(args: {
     await createCommit(args)
 
     // create the pull request
-    await args.github.pulls.create({
+    await args.octokit.pulls.create({
       base: args.parentBranch,
       body: args.body,
       head: args.branch,

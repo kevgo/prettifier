@@ -2,7 +2,7 @@ import webhooks from "@octokit/webhooks"
 import * as probot from "probot"
 import { ProbotOctokit } from "probot"
 
-import { addComment } from "./github/add-comment"
+import * as github from "./github"
 import { firstLineWithPill } from "./helpers/string-tools"
 import { DevError, logDevError } from "./logging/dev-error"
 import { logUserError, UserError } from "./logging/user-error"
@@ -10,9 +10,9 @@ import { logUserError, UserError } from "./logging/user-error"
 const commandRE = /^\/([\w]+)\b *(.*)?$/
 
 interface IssueCommentState {
-  github: InstanceType<typeof ProbotOctokit>
   issueId: string
   issueNr: number
+  octokit: InstanceType<typeof ProbotOctokit>
   org: string
   repo: string
 }
@@ -25,7 +25,7 @@ export async function onIssueComment(
     repo: "",
     issueId: "",
     issueNr: 0,
-    github: context.github,
+    octokit: context.github,
   }
   let repoPrefix = ""
   try {
@@ -71,7 +71,7 @@ export async function onIssueComment(
         return
       case "help":
         console.log(`${repoPrefix}: HELP COMMAND`)
-        await addComment({ ...state, text: helpTemplate() })
+        await github.addComment({ ...state, text: helpTemplate() })
         return
       case "user error":
         console.log(`${repoPrefix}: SIMULATING USER ERROR`)
@@ -82,7 +82,7 @@ export async function onIssueComment(
             new Error("underlying error"),
             state
           ),
-          state.github
+          state.octokit
         )
         return
       case undefined:
@@ -108,12 +108,12 @@ export async function onIssueComment(
 }
 
 async function addCommentWithGuidance(args: {
-  github: InstanceType<typeof probot.ProbotOctokit>
   guidance: string
   issueId: string
   message: string
+  octokit: InstanceType<typeof probot.ProbotOctokit>
 }) {
-  await addComment({ ...args, text: `${args.message}\n\n${args.guidance}` })
+  await github.addComment({ ...args, text: `${args.message}\n\n${args.guidance}` })
 }
 
 function helpTemplate(): string {

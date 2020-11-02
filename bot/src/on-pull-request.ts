@@ -5,11 +5,7 @@ import { ProbotOctokit } from "probot"
 
 import { isConfigurationFile } from "./config/is-configuration-file"
 import { PrettifierConfiguration } from "./config/prettifier-configuration"
-import { addComment } from "./github/add-comment"
-import { createCommit } from "./github/create-commit"
-import { getExistingFilesInPullRequests } from "./github/get-existing-files-in-pull-request"
-import { loadFile } from "./github/load-file"
-import { loadPullRequestContextData } from "./github/load-pull-request-context-data"
+import * as github from "./github"
 import { DevError, logDevError } from "./logging/dev-error"
 import { LoggedError } from "./logging/logged-error"
 import { logUserError, UserError } from "./logging/user-error"
@@ -18,8 +14,8 @@ import * as templates from "./templates"
 
 export interface PullRequestState {
   branch: string
-  github: InstanceType<typeof ProbotOctokit>
   headOrg: string
+  octokit: InstanceType<typeof ProbotOctokit>
   org: string
   prettierConfig: prettier.Options
   prettierIgnore: string
@@ -35,7 +31,7 @@ export async function onPullRequest(
   context: probot.Context<webhooks.EventPayloads.WebhookPayloadPullRequest>
 ): Promise<void> {
   const state: PullRequestState = {
-    github: context.github,
+    octokit: context.github,
     org: "",
     headOrg: "",
     repo: "",
@@ -65,7 +61,7 @@ export async function onPullRequest(
     }
 
     // load additional information from GitHub
-    const pullRequestContextData = await loadPullRequestContextData(state)
+    const pullRequestContextData = await github.loadPullRequestContextData(state)
     state.prettifierConfig = PrettifierConfiguration.fromYML(
       pullRequestContextData.prettifierConfig,
       pullRequestContextData.prettierIgnore
@@ -85,7 +81,7 @@ export async function onPullRequest(
     // load the files that this PR changes
     let files: string[] = []
     try {
-      files = await getExistingFilesInPullRequests(state)
+      files = await github.getExistingFilesInPullRequests(state)
     } catch (e) {
       // can't load files of pull request for some reason --> abort
       console.log(`${repoPrefix}: CAN'T LOAD FILES OF PULL REQUEST:`, e)
@@ -109,7 +105,7 @@ export async function onPullRequest(
       // load the file content
       let fileContent = ""
       try {
-        fileContent = await loadFile({ ...state, org: state.headOrg, filePath })
+        fileContent = await github.loadFile({ ...state, org: state.headOrg, filePath })
       } catch (e) {
         if (e instanceof RequestError) {
           if (e.status === 403) {
@@ -141,7 +137,7 @@ export async function onPullRequest(
 
     // verify correct config changes
     if (configChange) {
-      await addComment({
+      await github.addComment({
         ...state,
         issueId: state.pullRequestId,
         text: "Prettifier-Bot here. The configuration changes made in this pull request look good to me.",
@@ -158,14 +154,14 @@ export async function onPullRequest(
     const isPullRequestFromFork = state.headOrg !== state.org
     if (isPullRequestFromFork) {
       const text = templates.render(await state.prettifierConfig.welcome(), { files: prettifiedFiles.paths() })
-      await addComment({ ...state, issueId: state.pullRequestId, text })
+      await github.addComment({ ...state, issueId: state.pullRequestId, text })
       console.log(`${repoPrefix}: COMMENTED ON PULL REQUEST FROM FORK`)
       return
     }
 
     // create a commit
     try {
-      await createCommit({
+      await github.createCommit({
         ...state,
         files: prettifiedFiles.map(f => {
           return { path: f.path, content: f.formatted }
@@ -211,7 +207,7 @@ export async function onPullRequest(
 
     // add community comment
     if (state.prettifierConfig.commentTemplate !== "") {
-      await addComment({ ...state, issueId: state.pullRequestId, text: state.prettifierConfig.commentTemplate })
+      await github.addComment({ ...state, issueId: state.pullRequestId, text: state.prettifierConfig.commentTemplate })
       console.log(`${repoPrefix}: ADDED COMMUNITY COMMENT`)
     }
   } catch (e) {

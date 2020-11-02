@@ -6,11 +6,11 @@ import { DevError } from "../logging/dev-error"
 export async function loadFile(args: {
   branch: string
   filePath: string
-  github: InstanceType<typeof ProbotOctokit>
+  octokit: InstanceType<typeof ProbotOctokit>
   org: string
   repo: string
 }): Promise<string> {
-  const result = await args.github.repos.getContent({
+  const result = await args.octokit.repos.getContent({
     owner: args.org,
     path: args.filePath,
     ref: args.branch,
