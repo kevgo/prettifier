@@ -55,15 +55,9 @@ export async function onPullRequest(
     }
 
     // load additional information from GitHub
-    const pullRequestContextData = await github.loadPullRequestContextData(state)
-    state.prettifierConfig = PrettifierConfiguration.fromYML(
-      pullRequestContextData.prettifierConfig,
-      pullRequestContextData.prettierIgnore
-    )
+    state = await loadPullRequestContext(state)
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(state.prettifierConfig)}`)
-    state.prettierConfig = prettier.loadConfig(pullRequestContextData)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(state.prettierConfig)}`)
-    state.prettierIgnore = pullRequestContextData.prettierIgnore
     console.log(`${repoPrefix}: PRETTIER IGNORE: ${JSON.stringify(state.prettierIgnore)}`)
 
     // check whether this branch should be ignored
@@ -225,4 +219,15 @@ export async function onPullRequest(
     }
     await logDevError(new DevError("unknown dev error", e, errorContext))
   }
+}
+
+async function loadPullRequestContext(state: PullRequestState): Promise<PullRequestState> {
+  const pullRequestContextData = await github.loadPullRequestContextData(state)
+  state.prettifierConfig = PrettifierConfiguration.fromYML(
+    pullRequestContextData.prettifierConfig,
+    pullRequestContextData.prettierIgnore
+  )
+  state.prettierConfig = prettier.loadConfig(pullRequestContextData)
+  state.prettierIgnore = pullRequestContextData.prettierIgnore
+  return state
 }

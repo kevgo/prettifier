@@ -66,23 +66,16 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     }
 
     // load additional information from GitHub
-    let pushContextData: github.PushContextData
     try {
-      pushContextData = await github.loadPushContextData(state)
+      state = await loadPushContext(state)
     } catch (e) {
-      // can't load push context for some reason, like missing permissions --> abort
       console.log(`${repoPrefix}: CAN'T LOAD PUSH CONTEXT:`, e)
       return
     }
-    state.pullRequestNumber = pushContextData.pullRequestNumber
-    state.pullRequestId = pushContextData.pullRequestId
-    state.prettierIgnore = pushContextData.prettierIgnore
-    state.prettifierConfig = PrettifierConfiguration.fromYML(pushContextData.prettifierConfig, state.prettierIgnore)
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(state.prettifierConfig)}`)
-    state.prettierConfig = prettier.loadConfig(pushContextData)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(state.prettierConfig)}`)
 
-    // check whether this branch should be ignored
+    // ignore this branch?
     if (state.prettifierConfig.shouldIgnoreBranch(state.branch)) {
       console.log(`${repoPrefix}: IGNORING THIS BRANCH PER BOT CONFIG`)
       return
@@ -255,4 +248,15 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
 
     await logDevError(new DevError("unknown dev error", e, errorContext))
   }
+}
+
+/** provides an updated state with additional Push context data loaded from GitHub */
+async function loadPushContext(state: PushState): Promise<PushState> {
+  const pushContextData = await github.loadPushContextData(state)
+  state.pullRequestNumber = pushContextData.pullRequestNumber
+  state.pullRequestId = pushContextData.pullRequestId
+  state.prettierIgnore = pushContextData.prettierIgnore
+  state.prettifierConfig = PrettifierConfiguration.fromYML(pushContextData.prettifierConfig, state.prettierIgnore)
+  state.prettierConfig = prettier.loadConfig(pushContextData)
+  return state
 }
