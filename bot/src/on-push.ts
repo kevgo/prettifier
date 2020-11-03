@@ -144,37 +144,30 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     }
 
     // try creating a commit
-    let createCommitError: Error | null = null
+    let createCommitError: Error | undefined
+    const message = templates.render(await state.prettifierConfig.commitMessageTemplate(), {
+      commitSha: state.commitSha,
+      files: prettifiedFiles.map(f => f.path),
+    })
     try {
-      await github.createCommit({
-        ...state,
-        files: prettifiedFiles,
-        message: templates.render(await state.prettifierConfig.commitMessageTemplate(), {
-          commitSha: state.commitSha,
-          files: prettifiedFiles.map(f => f.path),
-        }),
-      })
+      await github.createCommit({ ...state, files: prettifiedFiles, message })
       console.log(`${repoPrefix}: COMMITTED ${prettifiedFiles.length} PRETTIFIED FILES`)
     } catch (e) {
       // this error gets logged below where it is handled
       createCommitError = e
     }
 
-    if (!createCommitError && state.prettifierConfig.commentTemplate !== "") {
-      if (state.pullRequestId !== "") {
-        const hasComment = await github.hasCommentFromPrettifier(state)
-        if (!hasComment) {
-          await github.addComment({
-            ...state,
-            issueId: state.pullRequestId,
-            text: templates.render(state.prettifierConfig.commentTemplate, {
-              commitSha: state.commitSha,
-              files: prettifiedFiles.map(f => f.path),
-            }),
-          })
-        } else {
-          console.log(`${repoPrefix}: PULL REQUEST ALREADY HAS COMMENT, SKIPPING`)
-        }
+    // create pull request comment
+    if (state.pullRequestId !== "" && !createCommitError && state.prettifierConfig.commentTemplate !== "") {
+      const hasComment = await github.hasCommentFromPrettifier(state)
+      if (hasComment) {
+        console.log(`${repoPrefix}: PULL REQUEST ALREADY HAS COMMENT, SKIPPING`)
+      } else {
+        const text = templates.render(state.prettifierConfig.commentTemplate, {
+          commitSha: state.commitSha,
+          files: prettifiedFiles.map(f => f.path),
+        })
+        await github.addComment({ ...state, issueId: state.pullRequestId, text })
       }
     }
 
