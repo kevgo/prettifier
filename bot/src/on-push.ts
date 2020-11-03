@@ -105,18 +105,17 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       }
 
       // load the file content
-      let fileContent = ""
+      let fileContent: string
       try {
         fileContent = await github.loadFile({ ...state, filePath: currentFile })
       } catch (e) {
         if (e instanceof RequestError) {
-          const requestError = e
-          if (requestError.status === 403) {
+          if (e.status === 403) {
             // file exists but the server refused to serve the file --> ignore
             continue
           }
-          if (requestError.status === 404) {
-            // file no longer exists, probably because the branch was deleted --> ignore
+          if (e.status === 404) {
+            // file no longer exists --> branch was deleted --> ignore
             continue
           }
         }
