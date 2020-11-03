@@ -30,28 +30,22 @@ export interface PullRequestState {
 export async function onPullRequest(
   context: probot.Context<webhooks.EventPayloads.WebhookPayloadPullRequest>
 ): Promise<void> {
-  const state: PullRequestState = {
-    octokit: context.github,
-    org: "",
-    headOrg: "",
-    repo: "",
-    branch: "",
-    pullRequestNumber: 0,
-    pullRequestId: "",
-    pullRequestURL: "",
-    prettierConfig: {},
-    prettifierConfig: new PrettifierConfiguration({}, ""),
-    prettierIgnore: "",
-  }
+  let state: PullRequestState | undefined
   try {
-    // NOTE: loading this inside the try block to log rich errors when the payload changes
-    state.org = context.payload.repository.owner.login
-    state.headOrg = context.payload.pull_request.head.repo.owner.login
-    state.repo = context.payload.repository.name
-    state.branch = context.payload.pull_request.head.ref
-    state.pullRequestNumber = context.payload.pull_request.number
-    state.pullRequestId = context.payload.pull_request.node_id
-    state.pullRequestURL = context.payload.pull_request.html_url
+    // NOTE: loading this inside the try block to log rich errors when there are issues parsing the GitHub payload
+    state = {
+      octokit: context.github,
+      org: context.payload.repository.owner.login,
+      headOrg: context.payload.pull_request.head.repo.owner.login,
+      repo: context.payload.repository.name,
+      branch: context.payload.pull_request.head.ref,
+      pullRequestNumber: context.payload.pull_request.number,
+      pullRequestId: context.payload.pull_request.node_id,
+      pullRequestURL: context.payload.pull_request.html_url,
+      prettierConfig: {},
+      prettifierConfig: new PrettifierConfiguration({}, ""),
+      prettierIgnore: "",
+    }
     const repoPrefix = `${state.org}/${state.repo}|#${state.pullRequestNumber}`
     console.log(`${repoPrefix}: PULL REQUEST DETECTED`)
 

@@ -20,20 +20,17 @@ interface IssueCommentState {
 export async function onIssueComment(
   context: probot.Context<webhooks.EventPayloads.WebhookPayloadIssueComment>
 ): Promise<void> {
-  const state: IssueCommentState = {
-    org: "",
-    repo: "",
-    issueId: "",
-    issueNr: 0,
-    octokit: context.github,
-  }
+  let state: IssueCommentState | undefined
   let repoPrefix = ""
   try {
     // NOTE: loading this inside the try block to log rich errors when the payload changes
-    state.org = context.payload.repository.owner.login
-    state.repo = context.payload.repository.name
-    state.issueId = context.payload.issue.node_id
-    state.issueNr = context.payload.issue.number
+    state = {
+      issueId: context.payload.issue.node_id,
+      issueNr: context.payload.issue.number,
+      octokit: context.github,
+      org: context.payload.repository.owner.login,
+      repo: context.payload.repository.name,
+    }
     repoPrefix = `${state.org}/${state.repo}`
     if (context.payload.comment.user.login === "prettifier[bot]") {
       console.log(`${repoPrefix}: IGNORING MY OWN COMMENT`)

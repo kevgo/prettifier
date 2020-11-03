@@ -28,30 +28,26 @@ interface PushState {
 
 /** called when this bot gets notified about a push on Github */
 export async function onPush(context: probot.Context<webhooks.EventPayloads.WebhookPayloadPush>): Promise<void> {
-  const state: PushState = {
-    org: "",
-    repo: "",
-    branch: "",
-    author: "",
-    commitSha: "",
-    pullRequestNumber: 0,
-    pullRequestId: "",
-    prettierConfig: {},
-    prettifierConfig: new PrettifierConfiguration({}, ""),
-    prettierIgnore: "",
-    octokit: context.github,
-  }
+  let state: PushState | undefined
   const changedFiles = new Set<string>()
   const prettifiedFiles = []
   let currentFile = ""
   let prettierConfigForFile: prettier.Options = {}
   try {
     // NOTE: loading this inside the try block to log rich errors when the payload changes
-    state.org = context.payload.repository.owner.login
-    state.repo = context.payload.repository.name
-    state.branch = context.payload.ref.replace("refs/heads/", "")
-    state.author = context.payload.pusher.name
-    state.commitSha = context.payload.after.substring(0, 7)
+    state = {
+      author: context.payload.pusher.name,
+      branch: context.payload.ref.replace("refs/heads/", ""),
+      commitSha: context.payload.after.substring(0, 7),
+      octokit: context.github,
+      org: context.payload.repository.owner.login,
+      prettierConfig: {},
+      prettierIgnore: "",
+      prettifierConfig: new PrettifierConfiguration({}, ""),
+      pullRequestId: "",
+      pullRequestNumber: 0,
+      repo: context.payload.repository.name,
+    }
     const repoPrefix = `${state.org}/${state.repo}|${state.branch}|${state.commitSha}`
 
     // ignore deleted branches

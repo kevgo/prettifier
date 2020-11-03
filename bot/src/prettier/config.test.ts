@@ -131,7 +131,7 @@ suite("getPrettierConfig", function () {
   })
 })
 
-function scaffoldPushContextData(testData: Partial<github.PushContextData> = {}): PushContextData {
+function scaffoldPushContextData(testData: Partial<github.PushContextData> = {}): github.PushContextData {
   const result = {
     prettierIgnore: "",
     package_json: "",
