@@ -97,17 +97,9 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       i++
       const filePrefix = `${repoPrefix}: FILE ${i}/${changedFiles.size} (${currentFile})`
 
-      // ignore non-prettifiable files
-      let allowed = false
-      try {
-        allowed = await state.prettifierConfig.shouldPrettify(currentFile)
-      } catch (e) {
-        if (e instanceof LoggedError) {
-          continue
-        }
-        throw e
-      }
-      if (!allowed) {
+      // ignore file?
+      const prettifiable = await state.prettifierConfig.shouldPrettify(currentFile)
+      if (!prettifiable) {
         console.log(`${filePrefix} - NOT PRETTIFYABLE OR IGNORED`)
         continue
       }

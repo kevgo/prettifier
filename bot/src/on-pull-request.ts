@@ -86,9 +86,9 @@ export async function onPullRequest(
       const filePrefix = `${repoPrefix}: FILE ${i + 1}/${changedFiles.length} (${filePath})`
 
       // ignore file?
-      const shouldPrettify = await state.prettifierConfig.shouldPrettify(filePath)
-      if (!shouldPrettify) {
-        console.log(`${filePrefix} - IGNORING`)
+      const prettifyable = await state.prettifierConfig.shouldPrettify(filePath)
+      if (!prettifyable) {
+        console.log(`${filePrefix} - NOT PRETTIFYABLE OR IGNORED`)
         continue
       }
 
