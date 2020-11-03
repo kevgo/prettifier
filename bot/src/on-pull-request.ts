@@ -60,30 +60,32 @@ export async function onPullRequest(
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(state.prettierConfig)}`)
     console.log(`${repoPrefix}: PRETTIER IGNORE: ${JSON.stringify(state.prettierIgnore)}`)
 
-    // check whether this branch should be ignored
+    // ignore this branch?
     if (state.prettifierConfig.shouldIgnoreBranch(state.branch)) {
       console.log(`${repoPrefix}: IGNORING THIS BRANCH PER BOT CONFIG`)
       return
     }
 
-    // load the files that this PR changes
-    let files: string[] = []
+    // load changed files
+    let changedFiles: string[]
     try {
-      files = await github.getExistingFilesInPullRequests(state)
+      changedFiles = await github.getExistingFilesInPullRequests(state)
     } catch (e) {
       // can't load files of pull request for some reason --> abort
       console.log(`${repoPrefix}: CAN'T LOAD FILES OF PULL REQUEST:`, e)
       return
     }
+
     const prettifiedFiles = new prettier.Result()
     let configChange = false
-    for (let i = 0; i < files.length; i++) {
-      const filePath = files[i]
+    for (let i = 0; i < changedFiles.length; i++) {
+      const filePath = changedFiles[i]
       if (isConfigurationFile(filePath)) {
         configChange = true
       }
-      const filePrefix = `${repoPrefix}: FILE ${i + 1}/${files.length} (${filePath})`
-      // ignore files that shouldn't be prettified
+      const filePrefix = `${repoPrefix}: FILE ${i + 1}/${changedFiles.length} (${filePath})`
+
+      // ignore file?
       const shouldPrettify = await state.prettifierConfig.shouldPrettify(filePath)
       if (!shouldPrettify) {
         console.log(`${filePrefix} - IGNORING`)
@@ -91,7 +93,7 @@ export async function onPullRequest(
       }
 
       // load the file content
-      let fileContent = ""
+      let fileContent: string
       try {
         fileContent = await github.loadFile({ ...state, org: state.headOrg, filePath })
       } catch (e) {
@@ -135,7 +137,7 @@ export async function onPullRequest(
 
     if (prettifiedFiles.length === 0) {
       // no changed files --> nothing else to do here
-      console.log(`${repoPrefix}: ALL ${files.length} FILES WERE ALREADY FORMATTED`)
+      console.log(`${repoPrefix}: ALL ${changedFiles.length} FILES WERE ALREADY FORMATTED`)
       return
     }
 

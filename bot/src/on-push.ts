@@ -29,7 +29,7 @@ interface PushState {
 /** called when this bot gets notified about a push on Github */
 export async function onPush(context: probot.Context<webhooks.EventPayloads.WebhookPayloadPush>): Promise<void> {
   let state: PushState | undefined
-  const changedFiles = new Set<string>()
+  let changedFiles: Set<string> | undefined
   const prettifiedFiles = []
   let currentFile = ""
   let prettierConfigForFile: prettier.Options = {}
@@ -90,14 +90,8 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       console.log(`${repoPrefix}: THIS BRANCH HAS PULL REQUEST #${state.pullRequestNumber}`)
     }
 
-    // find all changed files
-    for (const commit of context.payload.commits) {
-      concatToSet(changedFiles, commit.added)
-      concatToSet(changedFiles, commit.modified)
-      removeAllFromSet(changedFiles, commit.removed)
-    }
-
     // prettify all changed files
+    changedFiles = findChangedFiles(context.payload.commits)
     let i = 0
     for (currentFile of changedFiles) {
       i++
@@ -259,4 +253,14 @@ async function loadPushContext(state: PushState): Promise<PushState> {
   state.prettifierConfig = PrettifierConfiguration.fromYML(pushContextData.prettifierConfig, state.prettierIgnore)
   state.prettierConfig = prettier.loadConfig(pushContextData)
   return state
+}
+
+function findChangedFiles(commits: any[]): Set<string> {
+  const result = new Set<string>()
+  for (const commit of commits) {
+    concatToSet(result, commit.added)
+    concatToSet(result, commit.modified)
+    removeAllFromSet(result, commit.removed)
+  }
+  return result
 }
