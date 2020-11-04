@@ -10,7 +10,7 @@ adds a commit that fixes the formatting into the same branch.
            src="/learn/direct-commits/images/commit_annotated.png"
            alt="screenshot">}}
 
-{{% notice info %}} These commits are made to your remote branch on GitHub. You
-have to run `git pull` to get them onto your developer machine. Use
+{{% notice info %}} These commits are made to the remote branch on GitHub. Run
+`git pull` to get them onto your developer machine. Use
 [Git Town](http://www.git-town.com) to do this regularly during
 development.{{% /notice %}}
