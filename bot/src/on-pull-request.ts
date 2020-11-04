@@ -143,8 +143,11 @@ export async function onPullRequest(
 
     const isPullRequestFromFork = state.headOrg !== state.org
     if (isPullRequestFromFork) {
-      const text = templates.render(await state.prettifierConfig.welcome(), { files: prettifiedFiles.paths() })
-      await github.addComment({ ...state, issueId: state.pullRequestId, text })
+      await github.addComment({
+        ...state,
+        issueId: state.pullRequestId,
+        text: templates.render(await state.prettifierConfig.welcome(), { files: prettifiedFiles.paths() }),
+      })
       console.log(`${repoPrefix}: COMMENTED ON PULL REQUEST FROM FORK`)
       return
     }

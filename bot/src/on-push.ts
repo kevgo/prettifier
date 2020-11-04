@@ -163,11 +163,14 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       if (hasComment) {
         console.log(`${repoPrefix}: PULL REQUEST ALREADY HAS COMMENT, SKIPPING`)
       } else {
-        const text = templates.render(state.prettifierConfig.commentTemplate, {
-          commitSha: state.commitSha,
-          files: prettifiedFiles.map(f => f.path),
+        await github.addComment({
+          ...state,
+          issueId: state.pullRequestId,
+          text: templates.render(state.prettifierConfig.commentTemplate, {
+            commitSha: state.commitSha,
+            files: prettifiedFiles.map(f => f.path),
+          }),
         })
-        await github.addComment({ ...state, issueId: state.pullRequestId, text })
       }
     }
 
