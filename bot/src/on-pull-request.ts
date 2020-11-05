@@ -67,9 +67,8 @@ export async function onPullRequest(
     }
 
     // load changed files
-    let changedFiles: string[]
     try {
-      changedFiles = await github.getExistingFilesInPullRequests(state)
+      var changedFiles = await github.getExistingFilesInPullRequests(state)
     } catch (e) {
       // can't load files of pull request for some reason --> abort
       console.log(`${repoPrefix}: CAN'T LOAD FILES OF PULL REQUEST:`, e)
@@ -93,9 +92,8 @@ export async function onPullRequest(
       }
 
       // load the file content
-      let fileContent: string
       try {
-        fileContent = await github.loadFile({ ...state, org: state.headOrg, filePath })
+        var fileContent = await github.loadFile({ ...state, org: state.headOrg, filePath })
       } catch (e) {
         if (e instanceof RequestError) {
           if (e.status === 403) {

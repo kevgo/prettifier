@@ -105,9 +105,8 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       }
 
       // load the file content
-      let fileContent: string
       try {
-        fileContent = await github.loadFile({ ...state, filePath: currentFile })
+        var fileContent = await github.loadFile({ ...state, filePath: currentFile })
       } catch (e) {
         if (e instanceof RequestError) {
           if (e.status === 403) {
