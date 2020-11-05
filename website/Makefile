@@ -16,4 +16,4 @@ setup:
 	@echo "Please install Hugo if you haven't yet: https://gohugo.io/getting-started/installing"
 
 start:  # runs the local development server
-	@hugo serve -p 3000
+	@hugo serve -p 3000 --disableFastRender
