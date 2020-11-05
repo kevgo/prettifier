@@ -199,8 +199,12 @@ export async function onPullRequest(
     }
 
     // add community comment
-    if (state.prettifierConfig.commentTemplate !== "") {
-      await github.addComment({ ...state, issueId: state.pullRequestId, text: state.prettifierConfig.commentTemplate })
+    if (state.prettifierConfig.forkCommentTemplate !== "") {
+      await github.addComment({
+        ...state,
+        issueId: state.pullRequestId,
+        text: state.prettifierConfig.forkCommentTemplate,
+      })
       console.log(`${repoPrefix}: ADDED COMMUNITY COMMENT`)
     }
   } catch (e) {

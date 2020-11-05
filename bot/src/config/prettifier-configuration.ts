@@ -8,7 +8,7 @@ import { UserError } from "../logging/user-error"
 
 /** ConfigOptions defines the configuration options that users can provide. */
 interface ConfigOptions {
-  commentTemplate?: string
+  forkCommentTemplate?: string
   commitMessage?: string
   excludeBranches?: string[] | string
   excludeFiles?: string[] | string
@@ -19,7 +19,7 @@ interface ConfigOptions {
 /** PrettifierConfiguration provides the configuration of Prettifier. */
 export class PrettifierConfiguration {
   /** template for comments on the pull request */
-  commentTemplate: string
+  forkCommentTemplate: string
 
   private customCommitMessage: string
 
@@ -43,7 +43,7 @@ export class PrettifierConfiguration {
    * Missing values are backfilled with default values.
    */
   constructor(providedConfig: ConfigOptions, prettierIgnore: string) {
-    this.commentTemplate = providedConfig.commentTemplate ?? ""
+    this.forkCommentTemplate = providedConfig.forkCommentTemplate ?? ""
     this.customCommitMessage = providedConfig.commitMessage ?? ""
     if (Array.isArray(providedConfig.excludeBranches)) {
       this.excludeBranches = providedConfig.excludeBranches
