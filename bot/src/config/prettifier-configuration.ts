@@ -12,8 +12,8 @@ interface ConfigOptions {
   commitMessage?: string
   excludeBranches?: string[] | string
   excludeFiles?: string[] | string
+  prettificationNotification?: string
   pullsOnly?: boolean
-  welcome?: string
 }
 
 /** PrettifierConfiguration provides the configuration of Prettifier. */
@@ -30,7 +30,7 @@ export class PrettifierConfiguration {
   excludeFiles: string[]
 
   /** comment template when pull requests from forks are unformatted */
-  private customWelcome: string
+  private customPrettificationNotification: string
 
   /** whether to only prettify branches that are under code review */
   pullsOnly: boolean
@@ -59,7 +59,7 @@ export class PrettifierConfiguration {
     } else {
       this.excludeFiles = [providedConfig.excludeFiles]
     }
-    this.customWelcome = providedConfig.welcome ?? ""
+    this.customPrettificationNotification = providedConfig.prettificationNotification ?? ""
     this.ignore = ignore().add(this.excludeFiles).add(prettierIgnore)
     this.pullsOnly = providedConfig.pullsOnly ?? false
   }
@@ -69,9 +69,8 @@ export class PrettifierConfiguration {
     if (configText.trim() === "") {
       return new PrettifierConfiguration({}, prettierIgnore)
     }
-    let parsed = {}
     try {
-      parsed = yml.safeLoad(configText) as Record<string, unknown>
+      var parsed = yml.safeLoad(configText) as Record<string, unknown>
     } catch (e) {
       throw new UserError(
         `Prettifier configuration is not valid YML`,
@@ -79,15 +78,27 @@ export class PrettifierConfiguration {
         e
       )
     }
+    if (parsed["prettification-notification"]) {
+      parsed.prettificationNotification = parsed["prettification-notification"]
+      delete parsed["prettification-notification"]
+    }
+    if (parsed["prettification_notification"]) {
+      parsed.prettificationNotification = parsed["prettification_notification"]
+      delete parsed["prettification_notification"]
+    }
     return new PrettifierConfiguration(parsed, prettierIgnore)
   }
 
-  async welcome(): Promise<string> {
-    if (this.customWelcome !== "") {
-      return this.customWelcome
+  /** Provides the prettification notification template */
+  async prettificationNotification(): Promise<string> {
+    if (this.customPrettificationNotification !== "") {
+      return this.customPrettificationNotification
     }
-    const defaultWelcome = await fs.readFile(path.join("src", "config", "default-welcome.md.mustache"), "utf-8")
-    return defaultWelcome
+    const defaultTemplate = await fs.readFile(
+      path.join("src", "config", "default-prettification-notification.md.mustache"),
+      "utf-8"
+    )
+    return defaultTemplate
   }
 
   /** Indicates whether the given branch should be ignored. */

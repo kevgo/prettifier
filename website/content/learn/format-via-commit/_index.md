@@ -1,5 +1,5 @@
 ---
-title: Direct Commits
+title: Format via Commit
 weight: 10
 ---
 
@@ -7,7 +7,7 @@ Every time somebody pushes a commit that isn't properly formatted, Prettifier
 adds a commit that fixes the formatting into the same branch.
 
 {{< figure title="a direct Prettifier commit formatting a previously made commit"
-           src="/learn/direct-commits/images/commit_annotated.png"
+           src="/learn/format-via-commit/images/commit_annotated.png"
            alt="screenshot">}}
 
 {{% notice info %}} These commits are made to the remote branch on GitHub. Run

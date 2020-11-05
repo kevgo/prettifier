@@ -107,9 +107,19 @@ suite("PrettifierConfiguration", function () {
       assert.isFalse(await config.shouldPrettify("dist/foo.md"))
     })
 
-    test(".welcome()", async function () {
-      const config = PrettifierConfiguration.fromYML("welcome: Hello", "")
-      assert.equal(await config.welcome(), "Hello")
+    test(".prettification-notification", async function () {
+      const config = PrettifierConfiguration.fromYML("prettification-notification: Hello", "")
+      assert.equal(await config.prettificationNotification(), "Hello")
+    })
+
+    test(".prettification_notification", async function () {
+      const config = PrettifierConfiguration.fromYML("prettification_notification: Hello", "")
+      assert.equal(await config.prettificationNotification(), "Hello")
+    })
+
+    test(".prettificationNotification", async function () {
+      const config = PrettifierConfiguration.fromYML("prettificationNotification: Hello", "")
+      assert.equal(await config.prettificationNotification(), "Hello")
     })
 
     test("invalid", function () {
