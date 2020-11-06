@@ -1,4 +1,5 @@
 exclude:
+  - admin
   - website
 # publications:
 #   - localPath: website/content/static/images/
