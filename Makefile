@@ -32,10 +32,12 @@ stats:  # shows code statistics
 
 test:  # runs all tests
 	make lint
+	(cd admin && make test)
 	(cd bot && make test)
 	make doc
 
 setup:  # prepares the code base for working after being cloned
+	(cd admin && make setup)
 	(cd bot && make setup)
 	(cd text-run && yarn)
 	(cd website && make setup)

@@ -1,0 +1,23 @@
+{
+  "name": "admin",
+  "version": "0.0.0",
+  "dependencies": {
+    "@octokit/auth-app": "2.10.1",
+    "@octokit/core": "3.2.1",
+    "ts-node": "9.0.0",
+    "typescript": "4.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "14.14.6",
+    "@typescript-eslint/eslint-plugin": "4.6.1",
+    "@typescript-eslint/parser": "4.6.1",
+    "eslint": "7.12.1",
+    "eslint-plugin-simple-import-sort": "5.0.3",
+    "eslint-plugin-typescript-sort-keys": "1.5.0",
+    "prettier": "2.1.2",
+    "text-runner": "5.0.0-pre10",
+    "textrun-repo": "0.0.13"
+  },
+  "license": "ISC",
+  "private": true
+}
