@@ -1,2 +1,4 @@
+/admin/config.json
+/admin/private-key.pem
 /bot/dist
 node_modules
