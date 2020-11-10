@@ -47,5 +47,5 @@ ${err.cause}
 I can't format your code until this is fixed.
 If you think this is an error on my end, please report this problem using [this form](https://github.com/kevgo/prettifier/issues/new).
 I will only comment when I see new configuration changes.
-`.substr(0, 50000)
+`
 }
