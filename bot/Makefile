@@ -37,9 +37,9 @@ stats:  # shows code statistics
 
 test:  # runs all tests
 	${CURDIR}/node_modules/.bin/tsc -p tsconfig-build.json &
-	${CURDIR}/node_modules/.bin/eslint . --ext .ts &
 	${CURDIR}/node_modules/.bin/prettier --list-different --ignore-path=../.prettierignore . &
-	${CURDIR}/node_modules/.bin/mocha src/**/*.test.ts --reporter dot
+	${CURDIR}/node_modules/.bin/mocha src/**/*.test.ts --reporter dot &
+	${CURDIR}/node_modules/.bin/eslint . --ext .ts
 
 unit:  # runs the unit tests
 	${CURDIR}/node_modules/.bin/mocha --reporter dot './src/**/*.test.ts'
