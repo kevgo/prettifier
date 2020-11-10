@@ -140,15 +140,16 @@ export async function onPullRequest(
     }
 
     const isPullRequestFromFork = state.headOrg !== state.org
-    if (isPullRequestFromFork) {
+    if (isPullRequestFromFork && state.prettifierConfig.prettificationNotificationEnabled) {
+      // add prettification notification
       await github.addComment({
         ...state,
         issueId: state.pullRequestId,
-        text: templates.render(await state.prettifierConfig.prettificationNotificationTemplate(), {
+        text: await state.prettifierConfig.prettificationNotificationText({
           files: prettifiedFiles.paths(),
         }),
       })
-      console.log(`${repoPrefix}: COMMENTED ON PULL REQUEST FROM FORK`)
+      console.log(`${repoPrefix}: PRETTIFICATION NOTIFICATION ON PULL REQUEST FROM FORK`)
       return
     }
 
@@ -198,14 +199,14 @@ export async function onPullRequest(
       throw new DevError("creating a commit on a freshly opened pull request", e)
     }
 
-    // add community comment
-    if (state.prettifierConfig.forkCommentTemplate !== "") {
+    // add fork comment
+    if (state.prettifierConfig.forkCommentEnabled) {
       await github.addComment({
         ...state,
         issueId: state.pullRequestId,
-        text: state.prettifierConfig.forkCommentTemplate,
+        text: await state.prettifierConfig.forkCommentText(),
       })
-      console.log(`${repoPrefix}: ADDED COMMUNITY COMMENT`)
+      console.log(`${repoPrefix}: ADDED FORK COMMENT`)
     }
   } catch (e) {
     if (e instanceof LoggedError) {

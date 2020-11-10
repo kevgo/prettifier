@@ -3,24 +3,24 @@ import ignore, { Ignore } from "ignore"
 import yml from "js-yaml"
 import path from "path"
 import prettier from "prettier"
+import * as templates from "../templates"
 
 import { UserError } from "../logging/user-error"
 
 /** ConfigOptions defines the configuration options that users can provide. */
 interface ConfigOptions {
-  commentTemplate?: string
   commitMessage?: string
   excludeBranches?: string[] | string
   excludeFiles?: string[] | string
-  prettificationNotification?: string
+  forkCommentEnabled?: boolean
+  forkCommentTemplate?: string
+  prettificationNotificationEnabled?: boolean
+  prettificationNotificationTemplate?: string
   pullsOnly?: boolean
 }
 
 /** PrettifierConfiguration provides the configuration of Prettifier. */
 export class PrettifierConfiguration {
-  /** template for comments on the pull request */
-  forkCommentTemplate: string
-
   private customCommitMessage: string
 
   /** names of the branches that should not be prettified */
@@ -28,6 +28,14 @@ export class PrettifierConfiguration {
 
   /** names of files that should not be prettified */
   excludeFiles: string[]
+
+  /** template for comments on the pull request */
+  forkCommentEnabled: boolean
+
+  /** template for comments on the pull request */
+  customForkComment: string
+
+  prettificationNotificationEnabled: boolean
 
   /** comment template when pull requests from forks are unformatted */
   private customPrettificationNotification: string
@@ -43,7 +51,8 @@ export class PrettifierConfiguration {
    * Missing values are backfilled with default values.
    */
   constructor(providedConfig: ConfigOptions, prettierIgnore: string) {
-    this.forkCommentTemplate = providedConfig.forkCommentTemplate ?? ""
+    this.customForkComment = providedConfig.forkCommentTemplate ?? ""
+    this.forkCommentEnabled = providedConfig.forkCommentEnabled ?? true
     this.customCommitMessage = providedConfig.commitMessage ?? ""
     if (Array.isArray(providedConfig.excludeBranches)) {
       this.excludeBranches = providedConfig.excludeBranches
@@ -59,7 +68,8 @@ export class PrettifierConfiguration {
     } else {
       this.excludeFiles = [providedConfig.excludeFiles]
     }
-    this.customPrettificationNotification = providedConfig.prettificationNotification ?? ""
+    this.prettificationNotificationEnabled = providedConfig.prettificationNotificationEnabled ?? false
+    this.customPrettificationNotification = providedConfig.prettificationNotificationTemplate ?? ""
     this.ignore = ignore().add(this.excludeFiles).add(prettierIgnore)
     this.pullsOnly = providedConfig.pullsOnly ?? false
   }
@@ -89,7 +99,20 @@ export class PrettifierConfiguration {
     return new PrettifierConfiguration(parsed, prettierIgnore)
   }
 
-  /** Provides the prettification notification template */
+  /** provides the forkComment template to use */
+  async forkCommentTemplate(): Promise<string> {
+    if (this.customForkComment !== "") {
+      return this.customForkComment
+    } else {
+      return fs.readFile(path.join("src", "config", "default-fork-comment.md.mustache"), "utf-8")
+    }
+  }
+
+  async forkCommentText(): Promise<string> {
+    return await this.forkCommentTemplate()
+  }
+
+  /** provides the prettification notification template to use */
   async prettificationNotificationTemplate(): Promise<string> {
     if (this.customPrettificationNotification !== "") {
       return this.customPrettificationNotification
@@ -99,6 +122,10 @@ export class PrettifierConfiguration {
       "utf-8"
     )
     return defaultTemplate
+  }
+
+  async prettificationNotificationText(options: { files: string[] }): Promise<string> {
+    return templates.render(await this.prettificationNotificationTemplate(), options)
   }
 
   /** Indicates whether the given branch should be ignored. */

@@ -157,7 +157,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     }
 
     // create pull request comment
-    if (state.pullRequestId !== "" && !createCommitError && state.prettifierConfig.forkCommentTemplate !== "") {
+    if (state.pullRequestId !== "" && !createCommitError && state.prettifierConfig.prettificationNotificationEnabled) {
       const hasComment = await github.hasCommentFromPrettifier(state)
       if (hasComment) {
         console.log(`${repoPrefix}: PULL REQUEST ALREADY HAS COMMENT, SKIPPING`)
@@ -165,8 +165,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
         await github.addComment({
           ...state,
           issueId: state.pullRequestId,
-          text: templates.render(state.prettifierConfig.forkCommentTemplate, {
-            commitSha: state.commitSha,
+          text: await state.prettifierConfig.prettificationNotificationText({
             files: prettifiedFiles.map(f => f.path),
           }),
         })
