@@ -1,6 +1,7 @@
 # Prettifier Bot
 
-This is the source code for the Prettifier bot.
+This is the source code for the Prettifier bot. The manual for end users is at
+[prettifier.io](https://www.prettifier.io).
 
 ### Setup
 
@@ -44,13 +45,35 @@ reporting:
 
 ### Deployment
 
-The current codebase has built-in support for running on Heroku. To deploy the
-current branch to production, run <code type="make/command">make deploy</code>
-inside this directory.
+1. create a new GitHub application
+   ([detailed instructions](https://developer.github.com/apps/building-github-apps/creating-a-github-app))
+
+2. build the code base:
+
+   ```bash
+   cd bot
+   make build
+   ```
+
+3. set up a server with [NodeJS](https://nodejs.org) version 12 or higher
+
+4. set these environment variables on your server:
+
+   - `APP_ID` - the ID of your GitHub app
+   - `PRIVATE_KEY` - the private key of your GitHub app
+   - `WEBHOOK_SECRET` - the webhook secret set on GitHub
+
+5. deploy the `/bot/dist` directory to this server and run `make start` on the
+   server
+
+6. set up auto-restarting, auto-scaling, logging, monitoring, etc
 
 ### DevOps
 
+This codebase has support for running on Heroku built in.
+
+- deploy the current branch: <code type="make/command">make deploy</code>
 - see the server logs: <code type="make/command">make logs</code> (needs the
   [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli))
-- this code base uses GitHubOps: production incidents get filed as GitHub
-  tickets at https://github.com/kevgo/prettifier/issues
+- this code base uses **GitHubOps**: production incidents get filed as GitHub
+  tickets
