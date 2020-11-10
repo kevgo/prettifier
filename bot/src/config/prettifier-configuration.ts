@@ -3,9 +3,9 @@ import ignore, { Ignore } from "ignore"
 import yml from "js-yaml"
 import path from "path"
 import prettier from "prettier"
-import * as templates from "../templates"
 
 import { UserError } from "../logging/user-error"
+import * as templates from "../templates"
 
 /** ConfigOptions defines the configuration options that users can provide. */
 interface ConfigOptions {
@@ -89,12 +89,16 @@ export class PrettifierConfiguration {
       )
     }
     if (parsed["prettification-notification"]) {
-      parsed.prettificationNotification = parsed["prettification-notification"]
+      parsed.prettificationNotificationTemplate = parsed["prettification-notification"]
       delete parsed["prettification-notification"]
     }
     if (parsed["prettification_notification"]) {
-      parsed.prettificationNotification = parsed["prettification_notification"]
+      parsed.prettificationNotificationTemplate = parsed["prettification_notification"]
       delete parsed["prettification_notification"]
+    }
+    if (parsed["prettificationNotification"]) {
+      parsed.prettificationNotificationTemplate = parsed["prettificationNotification"]
+      delete parsed["prettificationNotification"]
     }
     return new PrettifierConfiguration(parsed, prettierIgnore)
   }
