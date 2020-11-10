@@ -88,14 +88,14 @@ export class PrettifierConfiguration {
         e
       )
     }
-    for (const key in ["prettification-notification", "prettification_notification", "prettificationNotification"]) {
+    for (const key of ["prettification-notification", "prettification_notification", "prettificationNotification"]) {
       if (parsed[key]) {
         parsed.prettificationNotificationTemplate = parsed[key]
         parsed.prettificationNotificationEnabled = true
         delete parsed[key]
       }
     }
-    for (const key in [
+    for (const key of [
       "prettification-notification-template",
       "prettification_notification_template",
       "prettificationNotificationTemplate",
@@ -105,7 +105,7 @@ export class PrettifierConfiguration {
         delete parsed[key]
       }
     }
-    for (const key in [
+    for (const key of [
       "prettification-notification-enabled",
       "prettification_notification_enabled",
       "prettificationNotificationEnabled",
