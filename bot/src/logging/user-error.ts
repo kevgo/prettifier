@@ -27,7 +27,7 @@ export async function logUserError(e: UserError, octokit: InstanceType<typeof Pr
   console.log(`${e.context.org}|${e.context.repo}: USER ERROR: ${e.message}:`, e.message)
   if (e.context.pullRequestId !== "") {
     await github.addComment({
-      issueId: e.context.pullRequestId || e.context.issueID,
+      issueId: e.context.pullRequestId || e.context.issueId,
       text: bodyTemplate(e),
       octokit,
     })
