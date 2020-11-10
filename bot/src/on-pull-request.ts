@@ -144,7 +144,7 @@ export async function onPullRequest(
       await github.addComment({
         ...state,
         issueId: state.pullRequestId,
-        text: templates.render(await state.prettifierConfig.prettificationNotification(), {
+        text: templates.render(await state.prettifierConfig.prettificationNotificationTemplate(), {
           files: prettifiedFiles.paths(),
         }),
       })

@@ -109,17 +109,17 @@ suite("PrettifierConfiguration", function () {
 
     test(".prettification-notification", async function () {
       const config = PrettifierConfiguration.fromYML("prettification-notification: Hello", "")
-      assert.equal(await config.prettificationNotification(), "Hello")
+      assert.equal(await config.prettificationNotificationTemplate(), "Hello")
     })
 
     test(".prettification_notification", async function () {
       const config = PrettifierConfiguration.fromYML("prettification_notification: Hello", "")
-      assert.equal(await config.prettificationNotification(), "Hello")
+      assert.equal(await config.prettificationNotificationTemplate(), "Hello")
     })
 
     test(".prettificationNotification", async function () {
       const config = PrettifierConfiguration.fromYML("prettificationNotification: Hello", "")
-      assert.equal(await config.prettificationNotification(), "Hello")
+      assert.equal(await config.prettificationNotificationTemplate(), "Hello")
     })
 
     test("invalid", function () {

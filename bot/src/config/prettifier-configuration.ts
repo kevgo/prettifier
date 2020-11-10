@@ -8,7 +8,7 @@ import { UserError } from "../logging/user-error"
 
 /** ConfigOptions defines the configuration options that users can provide. */
 interface ConfigOptions {
-  forkCommentTemplate?: string
+  commentTemplate?: string
   commitMessage?: string
   excludeBranches?: string[] | string
   excludeFiles?: string[] | string
@@ -90,7 +90,7 @@ export class PrettifierConfiguration {
   }
 
   /** Provides the prettification notification template */
-  async prettificationNotification(): Promise<string> {
+  async prettificationNotificationTemplate(): Promise<string> {
     if (this.customPrettificationNotification !== "") {
       return this.customPrettificationNotification
     }
