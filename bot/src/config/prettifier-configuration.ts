@@ -88,17 +88,32 @@ export class PrettifierConfiguration {
         e
       )
     }
-    if (parsed["prettification-notification"]) {
-      parsed.prettificationNotificationTemplate = parsed["prettification-notification"]
-      delete parsed["prettification-notification"]
+    for (const key in ["prettification-notification", "prettification_notification", "prettificationNotification"]) {
+      if (parsed[key]) {
+        parsed.prettificationNotificationTemplate = parsed[key]
+        parsed.prettificationNotificationEnabled = true
+        delete parsed[key]
+      }
     }
-    if (parsed["prettification_notification"]) {
-      parsed.prettificationNotificationTemplate = parsed["prettification_notification"]
-      delete parsed["prettification_notification"]
+    for (const key in [
+      "prettification-notification-template",
+      "prettification_notification_template",
+      "prettificationNotificationTemplate",
+    ]) {
+      if (parsed[key]) {
+        parsed.prettificationNotificationTemplate = parsed[key]
+        delete parsed[key]
+      }
     }
-    if (parsed["prettificationNotification"]) {
-      parsed.prettificationNotificationTemplate = parsed["prettificationNotification"]
-      delete parsed["prettificationNotification"]
+    for (const key in [
+      "prettification-notification-enabled",
+      "prettification_notification_enabled",
+      "prettificationNotificationEnabled",
+    ]) {
+      if (parsed[key]) {
+        parsed.prettificationNotificationEnabled = parsed[key]
+        delete parsed[key]
+      }
     }
     return new PrettifierConfiguration(parsed, prettierIgnore)
   }
