@@ -75,7 +75,7 @@ export async function onIssueComment(
         await logUserError(
           new UserError(
             "simulated activity",
-            `This is a simulated user error that you have requested by commenting "${issueText}".`,
+            `This is a simulated user error that you have requested by commenting \`${issueText}\`.`,
             new Error("underlying error"),
             state
           ),

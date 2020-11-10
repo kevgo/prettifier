@@ -23,8 +23,8 @@ export class DevError extends Error {
 /** logs the given developer error as a GitHub issue */
 export async function logDevError(err: DevError): Promise<void> {
   console.log(`${err.context.org}|${err.context.repo}: DevError ${err.message}`)
-  const opsGithub = new Octokit({ auth: process.env.GITHUBOPS_TOKEN })
-  await opsGithub.issues.create({
+  const octokit = new Octokit({ auth: process.env.GITHUBOPS_TOKEN })
+  await octokit.issues.create({
     owner: "kevgo",
     repo: "prettifier-ops",
     title: `Bug report: ${err.message}`,
@@ -67,5 +67,5 @@ export function bodyTemplate(err: DevError): string {
   ${err.cause.stack}
   \`\`\`
 </details>
-`
+`.substr(0, 60_000)
 }
