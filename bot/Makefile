@@ -17,6 +17,7 @@ help:   # prints all make targets
 	@cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
 lint:  # lints the code base
+	${CURDIR}/node_modules/.bin/graphql-inspector validate 'src/github/*.graphql' https://docs.github.com/public/schema.docs.graphql &
 	${CURDIR}/node_modules/.bin/eslint --ext .ts .
 	${CURDIR}/node_modules/.bin/prettier --list-different .
 
