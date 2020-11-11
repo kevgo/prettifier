@@ -1,5 +1,7 @@
 export type Maybe<T> = T | null
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] }
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K]
+}
 export type AddCommentMutationVariables = Exact<{
   issueId: Scalars["ID"]
   text: Scalars["String"]
@@ -7,72 +9,6 @@ export type AddCommentMutationVariables = Exact<{
 
 export type AddCommentMutation = { __typename?: "Mutation" } & {
   addComment?: Maybe<{ __typename?: "AddCommentPayload" } & Pick<AddCommentPayload, "clientMutationId">>
-}
-
-export type OnPullRequestQueryVariables = Exact<{
-  org: Scalars["String"]
-  repo: Scalars["String"]
-}>
-
-export type OnPullRequestQuery = { __typename?: "Query" } & {
-  repository?: Maybe<
-    { __typename?: "Repository" } & {
-      package_json?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
-      >
-      prettierIgnore?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
-      >
-      prettierrc?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
-      >
-      prettierrc_json?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
-      >
-      prettierrc_json5?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
-      >
-      prettierrc_toml?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
-      >
-      prettierrc_yaml?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
-      >
-      prettierrc_yml?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
-      >
-      prettifierConfig?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
-      >
-    }
-  >
 }
 
 export type PullRequestCommentAuthorsQueryVariables = Exact<{
@@ -109,6 +45,72 @@ export type PullRequestCommentAuthorsQuery = { __typename?: "Query" } & {
   >
 }
 
+export type OnPullRequestQueryVariables = Exact<{
+  org: Scalars["String"]
+  repo: Scalars["String"]
+}>
+
+export type OnPullRequestQuery = { __typename?: "Query" } & {
+  repository?: Maybe<
+    { __typename?: "Repository" } & {
+      package_json?: Maybe<
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
+      >
+      prettierIgnore?: Maybe<
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
+      >
+      prettierrc?: Maybe<
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
+      >
+      prettierrc_json?: Maybe<
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
+      >
+      prettierrc_json5?: Maybe<
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
+      >
+      prettierrc_toml?: Maybe<
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
+      >
+      prettierrc_yaml?: Maybe<
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
+      >
+      prettierrc_yml?: Maybe<
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
+      >
+      prettifierConfig?: Maybe<
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
+      >
+    }
+  >
+}
+
 export type OnPushQueryVariables = Exact<{
   branch: Scalars["String"]
   org: Scalars["String"]
@@ -119,65 +121,64 @@ export type OnPushQuery = { __typename?: "Query" } & {
   repository?: Maybe<
     { __typename?: "Repository" } & {
       package_json?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
       >
       prettierIgnore?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
       >
       prettierrc?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
       >
       prettierrc_json?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
       >
       prettierrc_json5?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
       >
       prettierrc_toml?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
       >
       prettierrc_yaml?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
       >
       prettierrc_yml?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
       >
       prettifierConfig?: Maybe<
-        | ({ __typename?: "Blob" } & Pick<Blob, "text">)
-        | { __typename?: "Commit" }
-        | { __typename?: "Tag" }
-        | { __typename?: "Tree" }
+        | ({ __typename: "Blob" } & Pick<Blob, "text">)
+        | { __typename: "Commit" }
+        | { __typename: "Tag" }
+        | { __typename: "Tree" }
       >
       ref?: Maybe<
         { __typename?: "Ref" } & {
-          associatedPullRequests: { __typename?: "PullRequestConnection" } & Pick<
-            PullRequestConnection,
-            "totalCount"
-          > & {
+          associatedPullRequests: {
+            __typename?: "PullRequestConnection"
+          } & Pick<PullRequestConnection, "totalCount"> & {
               nodes?: Maybe<Array<Maybe<{ __typename?: "PullRequest" } & Pick<PullRequest, "number" | "id" | "url">>>>
             }
         }

@@ -1,6 +1,3 @@
-import { promises as fs } from "fs"
-import path from "path"
-
 import { PullRequestState } from "../on-pull-request"
 import * as prettier from "../prettier/config"
 import * as graphql from "./graphql-generated"
@@ -14,10 +11,71 @@ interface PullRequestContextUnique {
 /** the payload of loading additional pull request data via the GraphQL API */
 export type PullRequestContextData = PullRequestContextUnique & prettier.ConfigResult
 
+const query = /* GraphQL */ `
+  query OnPullRequest($org: String!, $repo: String!) {
+    # config file contents
+    repository(owner: $org, name: $repo) {
+      prettifierConfig: object(expression: "{{branch}}:.github/prettifier.yml") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      package_json: object(expression: "{{branch}}:package.json") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc: object(expression: "{{branch}}:.prettierrc") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc_json: object(expression: "{{branch}}:.prettierrc.json") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc_json5: object(expression: "{{branch}}:.prettierrc.json5") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc_toml: object(expression: "{{branch}}:.prettierrc.toml") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc_yml: object(expression: "{{branch}}:.prettierrc.yml") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc_yaml: object(expression: "{{branch}}:.prettierrc.yaml") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierIgnore: object(expression: "{{branch}}:.prettierignore") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+    }
+  }
+`
+
 export async function loadPullRequestContextData(state: PullRequestState): Promise<PullRequestContextData> {
-  let query = await fs.readFile(path.join("src", "github", "pull-request-context.graphql"), "utf-8")
-  query = query.replace(/\{\{branch\}\}/g, state.branch)
-  const callResult: graphql.OnPullRequestQuery = await state.octokit.graphql(query, {
+  const fullQuery = query.replace(/\{\{branch\}\}/g, state.branch)
+  const callResult: graphql.OnPullRequestQuery = await state.octokit.graphql(fullQuery, {
     org: state.org,
     repo: state.repo,
   } as graphql.OnPullRequestQueryVariables)

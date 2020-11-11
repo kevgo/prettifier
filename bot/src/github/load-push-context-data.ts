@@ -1,5 +1,3 @@
-import { promises as fs } from "fs"
-import path from "path"
 import { ProbotOctokit } from "probot"
 
 import { DevError } from "../logging/dev-error"
@@ -19,13 +17,86 @@ interface PushContextUnique {
 /** the payload of loading additional push data via the GraphQL API */
 export type PushContextData = PushContextUnique & prettier.ConfigResult
 
+const query = /* GraphQL */ `
+  query OnPush($org: String!, $repo: String!, $branch: String!) {
+    # config file contents
+    repository(owner: $org, name: $repo) {
+      prettifierConfig: object(expression: "{{branch}}:.github/prettifier.yml") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      package_json: object(expression: "{{branch}}:package.json") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc: object(expression: "{{branch}}:.prettierrc") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc_json: object(expression: "{{branch}}:.prettierrc.json") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc_json5: object(expression: "{{branch}}:.prettierrc.json5") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc_toml: object(expression: "{{branch}}:.prettierrc.toml") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc_yml: object(expression: "{{branch}}:.prettierrc.yml") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierrc_yaml: object(expression: "{{branch}}:.prettierrc.yaml") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+      prettierIgnore: object(expression: "{{branch}}:.prettierignore") {
+        __typename
+        ... on Blob {
+          text
+        }
+      }
+
+      # pull-request for this branch
+      ref(qualifiedName: $branch) {
+        associatedPullRequests(first: 2, states: OPEN) {
+          totalCount
+          nodes {
+            number
+            id
+            url
+          }
+        }
+      }
+    }
+  }
+`
+
 export async function loadPushContextData(
   octokit: InstanceType<typeof ProbotOctokit>,
   args: graphql.OnPushQueryVariables
 ): Promise<PushContextData> {
-  let query = await fs.readFile(path.join("src", "github", "push-context.graphql"), "utf-8")
-  query = query.replace(/\{\{branch\}\}/g, args.branch)
-  const callResult: graphql.OnPushQuery = await octokit.graphql(query, args)
+  const fullQuery = query.replace(/\{\{branch\}\}/g, args.branch)
+  const callResult: graphql.OnPushQuery = await octokit.graphql(fullQuery, args)
 
   let pullRequestNumber = 0
   let pullRequestId = ""

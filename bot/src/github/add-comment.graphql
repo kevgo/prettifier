@@ -1,5 +1,0 @@
-mutation addComment($issueId: ID!, $text: String!) {
-  addComment(input: { subjectId: $issueId, body: $text }) {
-    clientMutationId
-  }
-}
