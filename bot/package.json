@@ -17,8 +17,12 @@
     "probot": "10.9.4"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "1.19.1",
+    "@graphql-codegen/typescript": "1.17.11",
+    "@graphql-codegen/typescript-operations": "1.17.9",
     "@graphql-inspector/cli": "2.3.0",
     "@graphql-inspector/validate-command": "2.3.0",
+    "@octokit/graphql-schema": "10.2.1",
     "@octokit/webhooks": "7.15.0",
     "@types/bunyan": "1.8.6",
     "@types/chai": "4.2.14",

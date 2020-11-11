@@ -17,6 +17,10 @@ Run <code type="make/command">make setup</code>.
 Use [GitHub's API explorer](https://developer.github.com/v4/explorer) to play
 with GitHub's GraphQL API.
 
+Module `@octokit/graphql-schema` provides the the currently schema of GitHub's
+GraphQL API. Run <code type="make/command">make generate</code> to update the
+[TypeScript wrappers](src/github/graphql-generated.ts) for our GraphQL queries.
+
 ### Testing
 
 - compile the code: <code type="make/command">make build</code> or `make`

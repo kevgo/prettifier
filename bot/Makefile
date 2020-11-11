@@ -13,11 +13,14 @@ fix:  # fixes the auto-fixable formatting issues
 	${CURDIR}/node_modules/.bin/prettier --write .
 	${CURDIR}/node_modules/.bin/eslint . --ext .ts --fix
 
+generate:  # generates the GraphQL TS types
+	${CURDIR}/node_modules/.bin/graphql-codegen --config codegen.yml
+
 help:   # prints all make targets
 	@cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
 lint:  # lints the code base
-	${CURDIR}/node_modules/.bin/graphql-inspector validate 'src/github/*.graphql' https://docs.github.com/public/schema.docs.graphql &
+	${CURDIR}/node_modules/.bin/graphql-inspector validate 'src/github/*.graphql' node_modules/@octokit/graphql-schema/schema.graphql
 	${CURDIR}/node_modules/.bin/eslint --ext .ts .
 	${CURDIR}/node_modules/.bin/prettier --list-different .
 
@@ -37,6 +40,7 @@ stats:  # shows code statistics
 	find . -type f | grep -v '\./node_modules/' | grep -v '\./dist/' | xargs cloc
 
 test:  # runs all tests
+	${CURDIR}/node_modules/.bin/graphql-inspector validate 'src/github/*.graphql' node_modules/@octokit/graphql-schema/schema.graphql
 	${CURDIR}/node_modules/.bin/tsc -p tsconfig-build.json &
 	${CURDIR}/node_modules/.bin/prettier --list-different --ignore-path=../.prettierignore . &
 	${CURDIR}/node_modules/.bin/mocha src/**/*.test.ts --reporter dot &

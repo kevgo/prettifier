@@ -162,7 +162,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       if (hasComment) {
         console.log(`${repoPrefix}: PULL REQUEST ALREADY HAS COMMENT, SKIPPING`)
       } else {
-        await github.addComment({
+        await github.addComment(context.github, {
           ...state,
           issueId: state.pullRequestId,
           text: templates.render(state.prettifierConfig.commentTemplate, {
@@ -232,7 +232,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
 
 /** provides an updated state with additional Push context data loaded from GitHub */
 async function loadPushContext(state: PushState): Promise<PushState> {
-  const pushContextData = await github.loadPushContextData(state)
+  const pushContextData = await github.loadPushContextData(state.octokit, state)
   state.pullRequestNumber = pushContextData.pullRequestNumber
   state.pullRequestId = pushContextData.pullRequestId
   state.prettierIgnore = pushContextData.prettierIgnore

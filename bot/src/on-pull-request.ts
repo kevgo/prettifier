@@ -125,7 +125,7 @@ export async function onPullRequest(
 
     // verify correct config changes
     if (configChange) {
-      await github.addComment({
+      await github.addComment(context.github, {
         ...state,
         issueId: state.pullRequestId,
         text: "Prettifier-Bot here. The configuration changes made in this pull request look good to me.",
@@ -141,7 +141,7 @@ export async function onPullRequest(
 
     const isPullRequestFromFork = state.headOrg !== state.org
     if (isPullRequestFromFork) {
-      await github.addComment({
+      await github.addComment(context.github, {
         ...state,
         issueId: state.pullRequestId,
         text: templates.render(await state.prettifierConfig.prettificationNotification(), {
@@ -200,7 +200,11 @@ export async function onPullRequest(
 
     // add community comment
     if (state.prettifierConfig.commentTemplate !== "") {
-      await github.addComment({ ...state, issueId: state.pullRequestId, text: state.prettifierConfig.commentTemplate })
+      await github.addComment(context.github, {
+        ...state,
+        issueId: state.pullRequestId,
+        text: state.prettifierConfig.commentTemplate,
+      })
       console.log(`${repoPrefix}: ADDED COMMUNITY COMMENT`)
     }
   } catch (e) {
