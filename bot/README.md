@@ -47,6 +47,13 @@ reporting:
   report a bug
 - comment `/prettifier help` to see a list of all available bot commands
 
+Debug tests in VSCode:
+
+- start VSCode from within the `bot` directory
+- open the test file to debug and set a breakpoint
+- choose <code type="debug-target">Current TS Mocha File</code> from the Debug
+  menu
+
 ### Deployment
 
 1. create a new GitHub application

@@ -6,6 +6,8 @@
     "assert-no-diff": "3.0.4",
     "js-yaml": "3.14.0",
     "text-runner": "5.0.0-pre10",
-    "textrun-make": "0.0.11"
+    "textrun-make": "0.0.11",
+    "ts-node": "9.0.0",
+    "typescript": "4.0.5"
   }
 }
