@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := build
 
-build: clean  # builds all code bases
+build:  # builds all code bases
 	(cd bot && make build)
 	(cd website && make build)
 
