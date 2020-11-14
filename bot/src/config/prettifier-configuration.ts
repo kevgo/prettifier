@@ -118,6 +118,17 @@ export class PrettifierConfiguration {
     return new PrettifierConfiguration(parsed, prettierIgnore)
   }
 
+  async commitMessageTemplate(): Promise<string> {
+    if (this.customCommitMessage !== "") {
+      return this.customCommitMessage
+    }
+    const defaultCommitMessage = await fs.readFile(
+      path.join("src", "config", "default-commit-message.md.mustache"),
+      "utf-8"
+    )
+    return defaultCommitMessage.trim()
+  }
+
   /** provides the forkComment template to use */
   async forkCommentTemplate(): Promise<string> {
     if (this.customForkComment !== "") {
@@ -172,16 +183,5 @@ export class PrettifierConfiguration {
       return false
     }
     return true
-  }
-
-  async commitMessageTemplate(): Promise<string> {
-    if (this.customCommitMessage !== "") {
-      return this.customCommitMessage
-    }
-    const defaultCommitMessage = await fs.readFile(
-      path.join("src", "config", "default-commit-message.md.mustache"),
-      "utf-8"
-    )
-    return defaultCommitMessage.trim()
   }
 }
