@@ -40,6 +40,7 @@ setup:  # prepares the code base for working after being cloned
 	(cd admin && make setup)
 	(cd bot && make setup)
 	(cd text-run && yarn)
+	(cd tools && yarn)
 	(cd website && make setup)
 
 update:  # updates dependencies to the latest version
