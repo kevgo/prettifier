@@ -68,7 +68,7 @@ export async function onIssueComment(
         return
       case "help":
         console.log(`${repoPrefix}: HELP COMMAND`)
-        await github.addComment({ ...state, text: helpTemplate() })
+        await github.addComment(context.github, { ...state, text: helpTemplate() })
         return
       case "user error":
         console.log(`${repoPrefix}: SIMULATING USER ERROR`)
@@ -110,7 +110,7 @@ async function addCommentWithGuidance(args: {
   message: string
   octokit: InstanceType<typeof probot.ProbotOctokit>
 }) {
-  await github.addComment({ ...args, text: `${args.message}\n\n${args.guidance}` })
+  await github.addComment(args.octokit, { ...args, text: `${args.message}\n\n${args.guidance}` })
 }
 
 function helpTemplate(): string {

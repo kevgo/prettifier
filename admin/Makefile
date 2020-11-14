@@ -1,10 +1,7 @@
 .DEFAULT_GOAL := build
 
-build: clean  # builds the production version
+build:  # builds the production version
 	${CURDIR}/node_modules/.bin/tsc -p tsconfig.json --noEmit
-
-clean:  # removes all build artifacts
-	rm -rf dist
 
 doc:  # runs the documentation tests
 	${CURDIR}/node_modules/.bin/text-run

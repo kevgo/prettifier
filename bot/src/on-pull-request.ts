@@ -125,7 +125,7 @@ export async function onPullRequest(
 
     // verify correct config changes
     if (configChange) {
-      await github.addComment({
+      await github.addComment(context.github, {
         ...state,
         issueId: state.pullRequestId,
         text: "Prettifier-Bot here. The configuration changes made in this pull request look good to me.",
@@ -142,7 +142,7 @@ export async function onPullRequest(
     const isPullRequestFromFork = state.headOrg !== state.org
     if (isPullRequestFromFork && state.prettifierConfig.prettificationNotificationEnabled) {
       // add prettification notification
-      await github.addComment({
+      await github.addComment(context.github, {
         ...state,
         issueId: state.pullRequestId,
         text: await state.prettifierConfig.prettificationNotificationText({
@@ -201,7 +201,7 @@ export async function onPullRequest(
 
     // add fork comment
     if (state.prettifierConfig.forkCommentEnabled) {
-      await github.addComment({
+      await github.addComment(context.github, {
         ...state,
         issueId: state.pullRequestId,
         text: await state.prettifierConfig.forkCommentText(),
