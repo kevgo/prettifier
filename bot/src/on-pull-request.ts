@@ -3,8 +3,7 @@ import webhooks from "@octokit/webhooks"
 import * as probot from "probot"
 import { ProbotOctokit } from "probot"
 
-import { isConfigurationFile } from "./config/is-configuration-file"
-import { PrettifierConfiguration } from "./config/prettifier-configuration"
+import * as botConfig from "./config"
 import * as github from "./github"
 import { DevError, logDevError } from "./logging/dev-error"
 import { LoggedError } from "./logging/logged-error"
@@ -19,7 +18,7 @@ export interface PullRequestState {
   org: string
   prettierConfig: prettier.Options
   prettierIgnore: string
-  prettifierConfig: PrettifierConfiguration
+  prettifierConfig: botConfig.Configuration
   pullRequestId: string
   pullRequestNumber: number
   pullRequestURL: string
@@ -43,7 +42,7 @@ export async function onPullRequest(
       pullRequestId: context.payload.pull_request.node_id,
       pullRequestURL: context.payload.pull_request.html_url,
       prettierConfig: {},
-      prettifierConfig: new PrettifierConfiguration({}, ""),
+      prettifierConfig: new botConfig.Configuration({}, ""),
       prettierIgnore: "",
     }
     const repoPrefix = `${state.org}/${state.repo}|#${state.pullRequestNumber}`
@@ -79,7 +78,7 @@ export async function onPullRequest(
     let configChange = false
     for (let i = 0; i < changedFiles.length; i++) {
       const filePath = changedFiles[i]
-      if (isConfigurationFile(filePath)) {
+      if (botConfig.filePath(filePath)) {
         configChange = true
       }
       const filePrefix = `${repoPrefix}: FILE ${i + 1}/${changedFiles.length} (${filePath})`
@@ -232,7 +231,7 @@ export async function onPullRequest(
 
 async function loadPullRequestContext(state: PullRequestState): Promise<PullRequestState> {
   const pullRequestContextData = await github.loadPullRequestContextData(state)
-  state.prettifierConfig = PrettifierConfiguration.fromYML(
+  state.prettifierConfig = botConfig.Configuration.fromYML(
     pullRequestContextData.prettifierConfig,
     pullRequestContextData.prettierIgnore
   )

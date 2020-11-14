@@ -3,7 +3,7 @@ import webhooks from "@octokit/webhooks"
 import * as probot from "probot"
 import { ProbotOctokit } from "probot"
 
-import { PrettifierConfiguration } from "./config/prettifier-configuration"
+import * as botConfig from "./config"
 import * as github from "./github"
 import { concatToSet, removeAllFromSet } from "./helpers/set-tools"
 import { DevError, logDevError } from "./logging/dev-error"
@@ -20,7 +20,7 @@ interface PushState {
   org: string
   prettierConfig: prettier.Options
   prettierIgnore: string
-  prettifierConfig: PrettifierConfiguration
+  prettifierConfig: botConfig.Configuration
   pullRequestId: string
   pullRequestNumber: number
   repo: string
@@ -43,7 +43,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       org: context.payload.repository.owner.login,
       prettierConfig: {},
       prettierIgnore: "",
-      prettifierConfig: new PrettifierConfiguration({}, ""),
+      prettifierConfig: new botConfig.Configuration({}, ""),
       pullRequestId: "",
       pullRequestNumber: 0,
       repo: context.payload.repository.name,
@@ -236,7 +236,7 @@ async function loadPushContext(state: PushState): Promise<PushState> {
   state.pullRequestNumber = pushContextData.pullRequestNumber
   state.pullRequestId = pushContextData.pullRequestId
   state.prettierIgnore = pushContextData.prettierIgnore
-  state.prettifierConfig = PrettifierConfiguration.fromYML(pushContextData.prettifierConfig, state.prettierIgnore)
+  state.prettifierConfig = botConfig.Configuration.fromYML(pushContextData.prettifierConfig, state.prettierIgnore)
   state.prettierConfig = prettier.loadConfig(pushContextData)
   return state
 }

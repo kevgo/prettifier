@@ -17,7 +17,7 @@ interface ConfigOptions {
 }
 
 /** PrettifierConfiguration provides the configuration of Prettifier. */
-export class PrettifierConfiguration {
+export class Configuration {
   /** template for comments on the pull request */
   commentTemplate: string
 
@@ -65,9 +65,9 @@ export class PrettifierConfiguration {
   }
 
   /** provides a PrettifierConfiguration instance populated with the values in the given YML file */
-  static fromYML(configText: string, prettierIgnore: string): PrettifierConfiguration {
+  static fromYML(configText: string, prettierIgnore: string): Configuration {
     if (configText.trim() === "") {
-      return new PrettifierConfiguration({}, prettierIgnore)
+      return new Configuration({}, prettierIgnore)
     }
     try {
       var parsed = yml.safeLoad(configText) as Record<string, unknown>
@@ -86,7 +86,7 @@ export class PrettifierConfiguration {
       parsed.prettificationNotification = parsed["prettification_notification"]
       delete parsed["prettification_notification"]
     }
-    return new PrettifierConfiguration(parsed, prettierIgnore)
+    return new Configuration(parsed, prettierIgnore)
   }
 
   /** Provides the prettification notification template */

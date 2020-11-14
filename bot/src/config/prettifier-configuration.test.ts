@@ -1,12 +1,12 @@
 import { assert } from "chai"
 
 import { UserError } from "../logging/user-error"
-import { PrettifierConfiguration } from "./prettifier-configuration"
+import * as botConfig from "."
 
 suite("PrettifierConfiguration", function () {
   suite(".shouldIgnoreBranch()", function () {
     test("ignores excluded branches", function () {
-      const config = new PrettifierConfiguration(
+      const config = new botConfig.Configuration(
         {
           excludeBranches: ["master"],
         },
@@ -16,7 +16,7 @@ suite("PrettifierConfiguration", function () {
     })
 
     test("approves non-excluded branches", function () {
-      const config = new PrettifierConfiguration(
+      const config = new botConfig.Configuration(
         {
           excludeBranches: ["master"],
         },
@@ -26,105 +26,105 @@ suite("PrettifierConfiguration", function () {
     })
 
     test("default behavior", function () {
-      const config = new PrettifierConfiguration({}, "")
+      const config = new botConfig.Configuration({}, "")
       assert.isFalse(config.shouldIgnoreBranch("foo"))
     })
   })
 
   suite(".shouldPrettify()", function () {
     test("ignores 'node_modules' by default", async function () {
-      const config = new PrettifierConfiguration({}, "")
+      const config = new botConfig.Configuration({}, "")
       assert.isFalse(await config.shouldPrettify("node_modules/foo/bar.js"))
     })
 
     test("excluded folder in prettifier.yml", async function () {
-      const config = new PrettifierConfiguration({ excludeFiles: ["dist"] }, "")
+      const config = new botConfig.Configuration({ excludeFiles: ["dist"] }, "")
       assert.isFalse(await config.shouldPrettify("dist/foo.js"))
     })
 
     test("excluded folder in prettier.yml", async function () {
-      const config = new PrettifierConfiguration({}, "dist/")
+      const config = new botConfig.Configuration({}, "dist/")
       assert.isFalse(await config.shouldPrettify("dist/foo.js"))
     })
 
     test("non-excluded file", async function () {
-      const config = new PrettifierConfiguration({}, "")
+      const config = new botConfig.Configuration({}, "")
       assert.isTrue(await config.shouldPrettify("foo.js"))
     })
   })
 
   suite(".excludeBranches", function () {
     test("array given", function () {
-      const config = new PrettifierConfiguration({ excludeBranches: ["foo"] }, "")
+      const config = new botConfig.Configuration({ excludeBranches: ["foo"] }, "")
       assert.deepEqual(config.excludeBranches, ["foo"])
     })
 
     test("single name given", function () {
-      const config = new PrettifierConfiguration({ excludeBranches: "foo" }, "")
+      const config = new botConfig.Configuration({ excludeBranches: "foo" }, "")
       assert.deepEqual(config.excludeBranches, ["foo"])
     })
 
     test("nothing given", function () {
-      const config = new PrettifierConfiguration({}, "")
+      const config = new botConfig.Configuration({}, "")
       assert.deepEqual(config.excludeBranches, ["node_modules"])
     })
   })
 
   suite(".excludeFiles()", function () {
     test("array given", function () {
-      const config = new PrettifierConfiguration({ excludeFiles: ["foo"] }, "")
+      const config = new botConfig.Configuration({ excludeFiles: ["foo"] }, "")
       assert.deepEqual(config.excludeFiles, ["foo"])
     })
 
     test("single name given", function () {
-      const config = new PrettifierConfiguration({ excludeFiles: "foo" }, "")
+      const config = new botConfig.Configuration({ excludeFiles: "foo" }, "")
       assert.deepEqual(config.excludeFiles, ["foo"])
     })
 
     test("nothing given", function () {
-      const config = new PrettifierConfiguration({}, "")
+      const config = new botConfig.Configuration({}, "")
       assert.deepEqual(config.excludeFiles, ["package-lock.json"])
     })
   })
 
   suite(".fromYML", function () {
     test("empty", function () {
-      const actual = PrettifierConfiguration.fromYML("", "")
+      const actual = botConfig.Configuration.fromYML("", "")
       assert.isNotNull(actual)
-      assert.instanceOf(actual, PrettifierConfiguration)
+      assert.instanceOf(actual, botConfig.Configuration)
       assert.deepEqual(actual.excludeBranches, ["node_modules"])
     })
 
     test("excludeBranches in prettifier.yml", function () {
-      const actual = PrettifierConfiguration.fromYML("excludeBranches: dist", "")
+      const actual = botConfig.Configuration.fromYML("excludeBranches: dist", "")
       assert.isNotNull(actual)
-      assert.instanceOf(actual, PrettifierConfiguration)
+      assert.instanceOf(actual, botConfig.Configuration)
       assert.deepEqual(actual.excludeBranches, ["dist"])
     })
 
     test(".prettierignore", async function () {
-      const config = PrettifierConfiguration.fromYML("", "dist/")
+      const config = botConfig.Configuration.fromYML("", "dist/")
       assert.isFalse(await config.shouldPrettify("dist/foo.md"))
     })
 
     test(".prettification-notification", async function () {
-      const config = PrettifierConfiguration.fromYML("prettification-notification: Hello", "")
+      const config = botConfig.Configuration.fromYML("prettification-notification: Hello", "")
       assert.equal(await config.prettificationNotification(), "Hello")
     })
 
     test(".prettification_notification", async function () {
-      const config = PrettifierConfiguration.fromYML("prettification_notification: Hello", "")
+      const config = botConfig.Configuration.fromYML("prettification_notification: Hello", "")
       assert.equal(await config.prettificationNotification(), "Hello")
     })
 
     test(".prettificationNotification", async function () {
-      const config = PrettifierConfiguration.fromYML("prettificationNotification: Hello", "")
+      const config = botConfig.Configuration.fromYML("prettificationNotification: Hello", "")
       assert.equal(await config.prettificationNotification(), "Hello")
     })
 
     test("invalid", function () {
       assert.throws(function () {
-        PrettifierConfiguration.fromYML("'wrong", "")
+        botConfig.Configuration.fromYML("'wrong", "")
       }, UserError)
     })
   })
