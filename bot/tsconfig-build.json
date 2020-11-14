@@ -2,5 +2,8 @@
 // tests are type-checked and compiled when running the unit tests
 {
   "extends": "./tsconfig.json",
-  "exclude": ["./src/**/*.test.ts"]
+  "exclude": ["./src/**/*.test.ts"],
+  "compilerOptions": {
+    "outDir": "./dist"
+  }
 }
