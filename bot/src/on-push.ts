@@ -3,7 +3,7 @@ import webhooks from "@octokit/webhooks"
 import * as probot from "probot"
 import { ProbotOctokit } from "probot"
 
-import * as botConfig from "./config"
+import * as config from "./config"
 import * as github from "./github"
 import { concatToSet, removeAllFromSet } from "./helpers/set-tools"
 import { DevError, logDevError } from "./logging/dev-error"
@@ -20,7 +20,7 @@ interface PushState {
   org: string
   prettierConfig: prettier.Options
   prettierIgnore: string
-  prettifierConfig: botConfig.Configuration
+  prettifierConfig: config.Data
   pullRequestId: string
   pullRequestNumber: number
   repo: string
@@ -43,7 +43,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       org: context.payload.repository.owner.login,
       prettierConfig: {},
       prettierIgnore: "",
-      prettifierConfig: new botConfig.Configuration({}, ""),
+      prettifierConfig: config.defaultValues(),
       pullRequestId: "",
       pullRequestNumber: 0,
       repo: context.payload.repository.name,
@@ -74,9 +74,10 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     }
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(state.prettifierConfig)}`)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(state.prettierConfig)}`)
+    const configReader = new config.Reader(state.prettifierConfig, state.prettierIgnore)
 
     // ignore this branch?
-    if (state.prettifierConfig.shouldIgnoreBranch(state.branch)) {
+    if (configReader.shouldIgnoreBranch(state.branch)) {
       console.log(`${repoPrefix}: IGNORING THIS BRANCH PER BOT CONFIG`)
       return
     }
@@ -98,7 +99,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       const filePrefix = `${repoPrefix}: FILE ${i}/${changedFiles.size} (${currentFile})`
 
       // ignore file?
-      const prettifiable = await state.prettifierConfig.shouldPrettify(currentFile)
+      const prettifiable = await configReader.shouldPrettify(currentFile)
       if (!prettifiable) {
         console.log(`${filePrefix} - NOT PRETTIFYABLE OR IGNORED`)
         continue
@@ -144,7 +145,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
 
     // try creating a commit
     let createCommitError: Error | undefined
-    const message = templates.render(await state.prettifierConfig.commitMessageTemplate(), {
+    const message = templates.render(await configReader.commitMessageTemplate(), {
       commitSha: state.commitSha,
       files: prettifiedFiles.map(f => f.path),
     })
@@ -195,7 +196,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       body: "Formats recently committed files. No content changes.",
       branch: `prettifier-${state.commitSha}`,
       files: prettifiedFiles,
-      message: templates.render(await state.prettifierConfig.commitMessageTemplate(), {
+      message: templates.render(await configReader.commitMessageTemplate(), {
         commitSha: state.commitSha,
         files: prettifiedFiles.map(f => f.path),
       }),
@@ -236,7 +237,7 @@ async function loadPushContext(state: PushState): Promise<PushState> {
   state.pullRequestNumber = pushContextData.pullRequestNumber
   state.pullRequestId = pushContextData.pullRequestId
   state.prettierIgnore = pushContextData.prettierIgnore
-  state.prettifierConfig = botConfig.Configuration.fromYML(pushContextData.prettifierConfig, state.prettierIgnore)
+  state.prettifierConfig = config.parseYML(pushContextData.prettifierConfig)
   state.prettierConfig = prettier.loadConfig(pushContextData)
   return state
 }

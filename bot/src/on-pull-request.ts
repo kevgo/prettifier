@@ -3,7 +3,7 @@ import webhooks from "@octokit/webhooks"
 import * as probot from "probot"
 import { ProbotOctokit } from "probot"
 
-import * as botConfig from "./config"
+import * as config from "./config"
 import * as github from "./github"
 import { DevError, logDevError } from "./logging/dev-error"
 import { LoggedError } from "./logging/logged-error"
@@ -18,7 +18,7 @@ export interface PullRequestState {
   org: string
   prettierConfig: prettier.Options
   prettierIgnore: string
-  prettifierConfig: botConfig.Configuration
+  prettifierConfig: config.Data
   pullRequestId: string
   pullRequestNumber: number
   pullRequestURL: string
@@ -42,7 +42,7 @@ export async function onPullRequest(
       pullRequestId: context.payload.pull_request.node_id,
       pullRequestURL: context.payload.pull_request.html_url,
       prettierConfig: {},
-      prettifierConfig: new botConfig.Configuration({}, ""),
+      prettifierConfig: config.defaultValues(),
       prettierIgnore: "",
     }
     const repoPrefix = `${state.org}/${state.repo}|#${state.pullRequestNumber}`
@@ -58,9 +58,10 @@ export async function onPullRequest(
     console.log(`${repoPrefix}: BOT CONFIG: ${JSON.stringify(state.prettifierConfig)}`)
     console.log(`${repoPrefix}: PRETTIER CONFIG: ${JSON.stringify(state.prettierConfig)}`)
     console.log(`${repoPrefix}: PRETTIER IGNORE: ${JSON.stringify(state.prettierIgnore)}`)
+    const configReader = new config.Reader(state.prettifierConfig, state.prettierIgnore)
 
     // ignore this branch?
-    if (state.prettifierConfig.shouldIgnoreBranch(state.branch)) {
+    if (configReader.shouldIgnoreBranch(state.branch)) {
       console.log(`${repoPrefix}: IGNORING THIS BRANCH PER BOT CONFIG`)
       return
     }
@@ -78,13 +79,13 @@ export async function onPullRequest(
     let configChange = false
     for (let i = 0; i < changedFiles.length; i++) {
       const filePath = changedFiles[i]
-      if (botConfig.filePath(filePath)) {
+      if (config.filePath(filePath)) {
         configChange = true
       }
       const filePrefix = `${repoPrefix}: FILE ${i + 1}/${changedFiles.length} (${filePath})`
 
       // ignore file?
-      const prettifyable = await state.prettifierConfig.shouldPrettify(filePath)
+      const prettifyable = await configReader.shouldPrettify(filePath)
       if (!prettifyable) {
         console.log(`${filePrefix} - NOT PRETTIFYABLE OR IGNORED`)
         continue
@@ -143,7 +144,7 @@ export async function onPullRequest(
       await github.addComment(context.github, {
         ...state,
         issueId: state.pullRequestId,
-        text: templates.render(await state.prettifierConfig.prettificationNotification(), {
+        text: templates.render(await configReader.prettificationNotification(), {
           files: prettifiedFiles.paths(),
         }),
       })
@@ -158,7 +159,7 @@ export async function onPullRequest(
         files: prettifiedFiles.map(f => {
           return { path: f.path, content: f.formatted }
         }),
-        message: templates.render(await state.prettifierConfig.commitMessageTemplate(), {
+        message: templates.render(await configReader.commitMessageTemplate(), {
           files: prettifiedFiles.map(f => f.path),
           commitSha: state.branch,
         }),
@@ -231,10 +232,7 @@ export async function onPullRequest(
 
 async function loadPullRequestContext(state: PullRequestState): Promise<PullRequestState> {
   const pullRequestContextData = await github.loadPullRequestContextData(state)
-  state.prettifierConfig = botConfig.Configuration.fromYML(
-    pullRequestContextData.prettifierConfig,
-    pullRequestContextData.prettierIgnore
-  )
+  state.prettifierConfig = config.parseYML(pullRequestContextData.prettifierConfig)
   state.prettierConfig = prettier.loadConfig(pullRequestContextData)
   state.prettierIgnore = pullRequestContextData.prettierIgnore
   return state

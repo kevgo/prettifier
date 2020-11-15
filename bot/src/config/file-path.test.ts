@@ -1,23 +1,23 @@
 import { assert } from "chai"
 
-import * as botConfig from "."
+import * as config from "."
 
 suite("isConfigurationFile", function () {
   test("matches", function () {
-    assert.isTrue(botConfig.filePath(".prettierrc"))
-    assert.isTrue(botConfig.filePath(".github/prettifier.yml"))
+    assert.isTrue(config.filePath(".prettierrc"))
+    assert.isTrue(config.filePath(".github/prettifier.yml"))
   })
 
   test("files in subfolders don't count", function () {
-    assert.isFalse(botConfig.filePath("sub/.prettierrc"))
-    assert.isFalse(botConfig.filePath("sub/.github/prettifier.yml"))
+    assert.isFalse(config.filePath("sub/.prettierrc"))
+    assert.isFalse(config.filePath("sub/.github/prettifier.yml"))
   })
 
   test("mismatching filenames", function () {
-    assert.isFalse(botConfig.filePath(".foorc"))
-    assert.isFalse(botConfig.filePath(".github/foo.yml"))
-    assert.isFalse(botConfig.filePath(".prettifier.yml"))
-    assert.isFalse(botConfig.filePath("prettifier.yml"))
-    assert.isFalse(botConfig.filePath("prettierrc"))
+    assert.isFalse(config.filePath(".foorc"))
+    assert.isFalse(config.filePath(".github/foo.yml"))
+    assert.isFalse(config.filePath(".prettifier.yml"))
+    assert.isFalse(config.filePath("prettifier.yml"))
+    assert.isFalse(config.filePath("prettierrc"))
   })
 })
