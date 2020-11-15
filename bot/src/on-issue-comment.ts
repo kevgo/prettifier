@@ -115,7 +115,6 @@ async function addCommentWithGuidance(args: {
 
 function helpTemplate(): string {
   return `I understand these commands:\n
-- \`prettifier debug\` prints the Prettifier configuration used for this repo
 - \`/prettifier user error\` simulates a user error
 - \`/prettifier help\` for this help screen
 `
