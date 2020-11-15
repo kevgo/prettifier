@@ -1,6 +1,4 @@
-import { promises as fs } from "fs"
 import ignore, { Ignore } from "ignore"
-import path from "path"
 import prettier from "prettier"
 
 import * as config from "."
@@ -16,18 +14,6 @@ export class Reader {
   constructor(data: config.Data, prettierIgnore: string) {
     this.data = data
     this.ignore = ignore().add(data.excludeFiles).add(prettierIgnore)
-  }
-
-  /** Provides the prettification notification template */
-  async prettificationNotification(): Promise<string> {
-    if (this.data.customPrettificationNotification !== "") {
-      return this.data.customPrettificationNotification
-    }
-    const defaultTemplate = await fs.readFile(
-      path.join("src", "config", "default-prettification-notification.md.mustache"),
-      "utf-8"
-    )
-    return defaultTemplate
   }
 
   /** Indicates whether the given branch should be ignored. */
@@ -55,16 +41,5 @@ export class Reader {
       return false
     }
     return true
-  }
-
-  async commitMessageTemplate(): Promise<string> {
-    if (this.data.customCommitMessage !== "") {
-      return this.data.customCommitMessage
-    }
-    const defaultCommitMessage = await fs.readFile(
-      path.join("src", "config", "default-commit-message.md.mustache"),
-      "utf-8"
-    )
-    return defaultCommitMessage.trim()
   }
 }

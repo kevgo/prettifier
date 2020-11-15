@@ -42,7 +42,7 @@ export async function onPullRequest(
       pullRequestId: context.payload.pull_request.node_id,
       pullRequestURL: context.payload.pull_request.html_url,
       prettierConfig: {},
-      prettifierConfig: config.defaultValues(),
+      prettifierConfig: await config.defaultValues(),
       prettierIgnore: "",
     }
     const repoPrefix = `${state.org}/${state.repo}|#${state.pullRequestNumber}`
@@ -144,7 +144,7 @@ export async function onPullRequest(
       await github.addComment(context.github, {
         ...state,
         issueId: state.pullRequestId,
-        text: templates.render(await configReader.prettificationNotification(), {
+        text: templates.render(state.prettifierConfig.prettificationNotification, {
           files: prettifiedFiles.paths(),
         }),
       })
@@ -159,7 +159,7 @@ export async function onPullRequest(
         files: prettifiedFiles.map(f => {
           return { path: f.path, content: f.formatted }
         }),
-        message: templates.render(await configReader.commitMessageTemplate(), {
+        message: templates.render(state.prettifierConfig.commitMessage, {
           files: prettifiedFiles.map(f => f.path),
           commitSha: state.branch,
         }),
@@ -232,7 +232,7 @@ export async function onPullRequest(
 
 async function loadPullRequestContext(state: PullRequestState): Promise<PullRequestState> {
   const pullRequestContextData = await github.loadPullRequestContextData(state)
-  state.prettifierConfig = config.parseYML(pullRequestContextData.prettifierConfig)
+  state.prettifierConfig = await config.parseYML(pullRequestContextData.prettifierConfig)
   state.prettierConfig = prettier.loadConfig(pullRequestContextData)
   state.prettierIgnore = pullRequestContextData.prettierIgnore
   return state

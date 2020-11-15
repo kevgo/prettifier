@@ -4,8 +4,8 @@ import { UserError } from "../logging/user-error"
 import * as config from "."
 
 /** provides the Data containing the configuration settings in the given configuration file content */
-export function parseYML(configText: string): config.Data {
-  const defaults = config.defaultValues()
+export async function parseYML(configText: string): Promise<config.Data> {
+  const defaults = await config.defaultValues()
   if (configText.trim() === "") {
     return defaults
   }
@@ -73,10 +73,8 @@ export function parseYML(configText: string): config.Data {
 
   return {
     commentTemplate: String(parsed.commentTemplate ?? defaults.commentTemplate),
-    customCommitMessage: String(parsed.commitMessage ?? defaults.customCommitMessage),
-    customPrettificationNotification: String(
-      parsed.prettificationNotification ?? defaults.customPrettificationNotification
-    ),
+    commitMessage: String(parsed.commitMessage ?? defaults.commitMessage),
+    prettificationNotification: String(parsed.prettificationNotification ?? defaults.prettificationNotification),
     excludeBranches,
     excludeFiles,
     pullsOnly,

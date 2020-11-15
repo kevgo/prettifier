@@ -43,7 +43,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       org: context.payload.repository.owner.login,
       prettierConfig: {},
       prettierIgnore: "",
-      prettifierConfig: config.defaultValues(),
+      prettifierConfig: await config.defaultValues(),
       pullRequestId: "",
       pullRequestNumber: 0,
       repo: context.payload.repository.name,
@@ -145,7 +145,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
 
     // try creating a commit
     let createCommitError: Error | undefined
-    const message = templates.render(await configReader.commitMessageTemplate(), {
+    const message = templates.render(state.prettifierConfig.commitMessage, {
       commitSha: state.commitSha,
       files: prettifiedFiles.map(f => f.path),
     })
@@ -196,7 +196,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       body: "Formats recently committed files. No content changes.",
       branch: `prettifier-${state.commitSha}`,
       files: prettifiedFiles,
-      message: templates.render(await configReader.commitMessageTemplate(), {
+      message: templates.render(state.prettifierConfig.commitMessage, {
         commitSha: state.commitSha,
         files: prettifiedFiles.map(f => f.path),
       }),
@@ -237,7 +237,7 @@ async function loadPushContext(state: PushState): Promise<PushState> {
   state.pullRequestNumber = pushContextData.pullRequestNumber
   state.pullRequestId = pushContextData.pullRequestId
   state.prettierIgnore = pushContextData.prettierIgnore
-  state.prettifierConfig = config.parseYML(pushContextData.prettifierConfig)
+  state.prettifierConfig = await config.parseYML(pushContextData.prettifierConfig)
   state.prettierConfig = prettier.loadConfig(pushContextData)
   return state
 }
