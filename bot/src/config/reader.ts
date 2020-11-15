@@ -1,6 +1,7 @@
 import ignore, { Ignore } from "ignore"
 import prettier from "prettier"
 
+import * as templates from "../templates"
 import * as config from "."
 
 /** high-level queries of configuration data */
@@ -14,6 +15,18 @@ export class Reader {
   constructor(data: config.Data, prettierIgnore: string) {
     this.data = data
     this.ignore = ignore().add(data.excludeFiles).add(prettierIgnore)
+  }
+
+  commentText(args: { files: string[] }): string {
+    return templates.render(this.data.commentTemplate, args)
+  }
+
+  commitMessageText(args: { commitSha: string; files: string[] }): string {
+    return templates.render(this.data.commitMessage, args)
+  }
+
+  prettificationNotificationText(args: { files: string[] }): string {
+    return templates.render(this.data.prettificationNotification, args)
   }
 
   /** Indicates whether the given branch should be ignored. */

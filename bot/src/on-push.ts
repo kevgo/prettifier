@@ -10,7 +10,6 @@ import { DevError, logDevError } from "./logging/dev-error"
 import { LoggedError } from "./logging/logged-error"
 import { logUserError, UserError } from "./logging/user-error"
 import * as prettier from "./prettier"
-import * as templates from "./templates"
 
 interface PushState {
   author: string
@@ -145,10 +144,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
 
     // try creating a commit
     let createCommitError: Error | undefined
-    const message = templates.render(state.prettifierConfig.commitMessage, {
-      commitSha: state.commitSha,
-      files: prettifiedFiles.paths(),
-    })
+    const message = configReader.commitMessageText({ commitSha: state.commitSha, files: prettifiedFiles.paths() })
     try {
       await github.createCommit({
         ...state,
@@ -170,10 +166,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
         await github.addComment(context.github, {
           ...state,
           issueId: state.pullRequestId,
-          text: templates.render(state.prettifierConfig.commentTemplate, {
-            commitSha: state.commitSha,
-            files: prettifiedFiles.paths(),
-          }),
+          text: configReader.commentText({ files: prettifiedFiles.paths() }),
         })
       }
     }
@@ -200,7 +193,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       body: "Formats recently committed files. No content changes.",
       branch: `prettifier-${state.commitSha}`,
       files: prettifiedFiles.formattedFiles(),
-      message: templates.render(state.prettifierConfig.commitMessage, {
+      message: configReader.commitMessageText({
         commitSha: state.commitSha,
         files: prettifiedFiles.paths(),
       }),
