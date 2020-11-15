@@ -43,7 +43,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       org: context.payload.repository.owner.login,
       prettierConfig: {},
       prettierIgnore: "",
-      prettifierConfig: await config.defaultValues(),
+      prettifierConfig: config.defaultValues(),
       pullRequestId: "",
       pullRequestNumber: 0,
       repo: context.payload.repository.name,
@@ -237,7 +237,7 @@ async function loadPushContext(state: PushState): Promise<PushState> {
   state.pullRequestNumber = pushContextData.pullRequestNumber
   state.pullRequestId = pushContextData.pullRequestId
   state.prettierIgnore = pushContextData.prettierIgnore
-  state.prettifierConfig = await config.parseYML(pushContextData.prettifierConfig)
+  state.prettifierConfig = config.parseYML(pushContextData.prettifierConfig)
   state.prettierConfig = prettier.loadConfig(pushContextData)
   return state
 }

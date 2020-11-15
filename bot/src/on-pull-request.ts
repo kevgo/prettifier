@@ -42,7 +42,7 @@ export async function onPullRequest(
       pullRequestId: context.payload.pull_request.node_id,
       pullRequestURL: context.payload.pull_request.html_url,
       prettierConfig: {},
-      prettifierConfig: await config.defaultValues(),
+      prettifierConfig: config.defaultValues(),
       prettierIgnore: "",
     }
     const repoPrefix = `${state.org}/${state.repo}|#${state.pullRequestNumber}`
@@ -232,7 +232,7 @@ export async function onPullRequest(
 
 async function loadPullRequestContext(state: PullRequestState): Promise<PullRequestState> {
   const pullRequestContextData = await github.loadPullRequestContextData(state)
-  state.prettifierConfig = await config.parseYML(pullRequestContextData.prettifierConfig)
+  state.prettifierConfig = config.parseYML(pullRequestContextData.prettifierConfig)
   state.prettierConfig = prettier.loadConfig(pullRequestContextData)
   state.prettierIgnore = pullRequestContextData.prettierIgnore
   return state

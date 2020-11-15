@@ -4,8 +4,8 @@ import { UserError } from "../logging/user-error"
 import * as config from "."
 
 /** provides the Data containing the configuration settings in the given configuration file content */
-export async function parseYML(configText: string): Promise<config.Data> {
-  const defaults = await config.defaultValues()
+export function parseYML(configText: string): config.Data {
+  const defaults = config.defaultValues()
   if (configText.trim() === "") {
     return defaults
   }
