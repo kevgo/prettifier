@@ -9,6 +9,7 @@
     "@octokit/request-error": "2.0.2",
     "@octokit/rest": "18.0.6",
     "@types/mustache": "4.0.1",
+    "diff": "4.0.2",
     "ignore": "5.1.8",
     "js-yaml": "3.14.0",
     "json5": "2.1.3",
