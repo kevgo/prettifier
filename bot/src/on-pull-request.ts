@@ -143,9 +143,9 @@ export async function onPullRequest(
       await github.addComment(context.github, {
         ...state,
         issueId: state.pullRequestId,
-        text: configReader.prettificationNotificationText({ files: prettifiedFiles.paths() }),
+        text: configReader.commentText({ files: prettifiedFiles.paths() }),
       })
-      console.log(`${repoPrefix}: COMMENTED ON PULL REQUEST FROM FORK`)
+      console.log(`${repoPrefix}: WELCOME COMMENT ON PULL REQUEST FROM FORK`)
       return
     }
 
