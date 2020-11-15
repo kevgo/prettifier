@@ -9,7 +9,6 @@ import { DevError, logDevError } from "./logging/dev-error"
 import { LoggedError } from "./logging/logged-error"
 import { logUserError, UserError } from "./logging/user-error"
 import * as prettier from "./prettier"
-import * as templates from "./templates"
 
 export interface PullRequestState {
   branch: string
@@ -144,9 +143,7 @@ export async function onPullRequest(
       await github.addComment(context.github, {
         ...state,
         issueId: state.pullRequestId,
-        text: templates.render(state.prettifierConfig.prettificationNotification, {
-          files: prettifiedFiles.paths(),
-        }),
+        text: configReader.prettificationNotificationText({ files: prettifiedFiles.paths() }),
       })
       console.log(`${repoPrefix}: COMMENTED ON PULL REQUEST FROM FORK`)
       return
@@ -157,9 +154,9 @@ export async function onPullRequest(
       await github.createCommit({
         ...state,
         files: prettifiedFiles.formattedFiles(),
-        message: templates.render(state.prettifierConfig.commitMessage, {
-          files: prettifiedFiles.paths(),
+        message: configReader.commitMessageText({
           commitSha: state.branch,
+          files: prettifiedFiles.paths(),
         }),
       })
       console.log(`${repoPrefix}: COMMITTED ${prettifiedFiles.length} PRETTIFIED FILES`)
