@@ -18,3 +18,5 @@ comment with a list of all available bot commands. The current commands are:
 
 - `/prettifier user error` posts the error message Prettifier would print when
   the user provides a broken configuration
+- `/prettifier config error` shows the error message Prettifier prints when it
+  detects invalid configuration

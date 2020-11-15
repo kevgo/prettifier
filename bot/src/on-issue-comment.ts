@@ -70,6 +70,18 @@ export async function onIssueComment(
         console.log(`${repoPrefix}: HELP COMMAND`)
         await github.addComment(context.github, { ...state, text: helpTemplate() })
         return
+      case "config error":
+        console.log(`${repoPrefix}: SIMULATING CONFIG ERROR`)
+        await logUserError(
+          new UserError(
+            "simulated configuration error",
+            `This is a simulated configuration error that you have requested by commenting \`${issueText}\`.`,
+            new Error("underlying error"),
+            state
+          ),
+          state.octokit
+        )
+        return
       case "user error":
         console.log(`${repoPrefix}: SIMULATING USER ERROR`)
         await logUserError(
@@ -116,6 +128,7 @@ async function addCommentWithGuidance(args: {
 function helpTemplate(): string {
   return `I understand these commands:\n
 - \`/prettifier user error\` simulates a user error
+- \`/prettifier config error\` show the error message for broken configuration
 - \`/prettifier help\` for this help screen
 `
 }
