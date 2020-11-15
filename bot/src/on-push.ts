@@ -30,7 +30,7 @@ interface PushState {
 export async function onPush(context: probot.Context<webhooks.EventPayloads.WebhookPayloadPush>): Promise<void> {
   let state: PushState | undefined
   let changedFiles: Set<string> | undefined
-  const prettifiedFiles = []
+  const prettifiedFiles = new prettier.Result()
   let currentFile = ""
   let prettierConfigForFile: prettier.Options = {}
   try {
@@ -133,7 +133,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       }
 
       // store the prettified content
-      prettifiedFiles.push({ path: currentFile, content: formatted })
+      prettifiedFiles.push({ path: currentFile, formatted, old: fileContent })
       console.log(`${filePrefix} - PRETTIFYING`)
     }
 
@@ -147,10 +147,14 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
     let createCommitError: Error | undefined
     const message = templates.render(state.prettifierConfig.commitMessage, {
       commitSha: state.commitSha,
-      files: prettifiedFiles.map(f => f.path),
+      files: prettifiedFiles.paths(),
     })
     try {
-      await github.createCommit({ ...state, files: prettifiedFiles, message })
+      await github.createCommit({
+        ...state,
+        files: prettifiedFiles.formattedFiles(),
+        message,
+      })
       console.log(`${repoPrefix}: COMMITTED ${prettifiedFiles.length} PRETTIFIED FILES`)
     } catch (e) {
       // this error gets logged below where it is handled
@@ -168,7 +172,7 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
           issueId: state.pullRequestId,
           text: templates.render(state.prettifierConfig.commentTemplate, {
             commitSha: state.commitSha,
-            files: prettifiedFiles.map(f => f.path),
+            files: prettifiedFiles.paths(),
           }),
         })
       }
@@ -195,10 +199,10 @@ export async function onPush(context: probot.Context<webhooks.EventPayloads.Webh
       ...state,
       body: "Formats recently committed files. No content changes.",
       branch: `prettifier-${state.commitSha}`,
-      files: prettifiedFiles,
+      files: prettifiedFiles.formattedFiles(),
       message: templates.render(state.prettifierConfig.commitMessage, {
         commitSha: state.commitSha,
-        files: prettifiedFiles.map(f => f.path),
+        files: prettifiedFiles.paths(),
       }),
       parentBranch: "master",
     })

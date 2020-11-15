@@ -156,11 +156,9 @@ export async function onPullRequest(
     try {
       await github.createCommit({
         ...state,
-        files: prettifiedFiles.map(f => {
-          return { path: f.path, content: f.formatted }
-        }),
+        files: prettifiedFiles.formattedFiles(),
         message: templates.render(state.prettifierConfig.commitMessage, {
-          files: prettifiedFiles.map(f => f.path),
+          files: prettifiedFiles.paths(),
           commitSha: state.branch,
         }),
       })
