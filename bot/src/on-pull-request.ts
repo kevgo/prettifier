@@ -140,7 +140,6 @@ export async function onPullRequest(
 
     const isPullRequestFromFork = state.headOrg !== state.org
     if (isPullRequestFromFork && state.prettifierConfig.prettificationNotificationEnabled) {
-      // add prettification notification
       await github.addComment(context.github, {
         ...state,
         issueId: state.pullRequestId,
