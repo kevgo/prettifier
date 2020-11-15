@@ -1,4 +1,8 @@
-/** the Prettifier configuration values  */
+/**
+ * the Prettifier configuration values
+ *
+ * see ./defaults.ts for examples
+ */
 export interface Data {
   /** template for comments on the pull request */
   commentTemplate: string
