@@ -7,10 +7,10 @@ import * as config from "."
 /** high-level queries of configuration data */
 export class Reader {
   /** the configuration data */
-  data: config.Data
+  readonly data: config.Data
 
   /** helps check whether a file path should be ignored */
-  private ignore: Ignore
+  private readonly ignore: Ignore
 
   constructor(data: config.Data, prettierIgnore: string) {
     this.data = data

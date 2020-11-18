@@ -6,13 +6,13 @@ import prettier from "prettier"
 import { UserError } from "../logging/user-error"
 
 export interface ConfigResult {
-  package_json: string
-  prettierrc: string
-  prettierrc_json: string
-  prettierrc_json5: string
-  prettierrc_toml: string
-  prettierrc_yaml: string
-  prettierrc_yml: string
+  readonly package_json: string
+  readonly prettierrc: string
+  readonly prettierrc_json: string
+  readonly prettierrc_json5: string
+  readonly prettierrc_toml: string
+  readonly prettierrc_yaml: string
+  readonly prettierrc_yml: string
 }
 
 export function loadConfig(result: ConfigResult): prettier.Options {

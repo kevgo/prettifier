@@ -11,17 +11,17 @@ import { logUserError, UserError } from "./logging/user-error"
 import * as prettier from "./prettier"
 
 export interface PullRequestState {
-  branch: string
-  headOrg: string
-  octokit: InstanceType<typeof ProbotOctokit>
-  org: string
+  readonly branch: string
+  readonly headOrg: string
+  readonly octokit: InstanceType<typeof ProbotOctokit>
+  readonly org: string
   prettierConfig: prettier.Options
   prettierIgnore: string
   prettifierConfig: config.Data
   pullRequestId: string
   pullRequestNumber: number
-  pullRequestURL: string
-  repo: string
+  readonly pullRequestURL: string
+  readonly repo: string
 }
 
 /** called when this bot gets notified about a new pull request */

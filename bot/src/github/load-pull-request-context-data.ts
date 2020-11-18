@@ -4,8 +4,8 @@ import * as graphql from "./graphql-generated"
 
 /** fields unique to pull request contexts */
 interface PullRequestContextUnique {
-  prettierIgnore: string
-  prettifierConfig: string
+  readonly prettierIgnore: string
+  readonly prettifierConfig: string
 }
 
 /** the payload of loading additional pull request data via the GraphQL API */

@@ -5,8 +5,8 @@ import { Context } from "./context"
 
 /** UserError indicates an error that the user made */
 export class UserError extends Error {
-  guidance: string
-  cause: Error
+  readonly guidance: string
+  readonly cause: Error
   context: Context
 
   constructor(message: string, guidance: string, cause: Error, context: Context = {}) {

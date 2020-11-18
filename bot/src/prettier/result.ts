@@ -1,13 +1,13 @@
 /** a prettified file */
 export interface PrettifiedFile {
   /** the prettified content */
-  formatted: string
+  readonly formatted: string
 
   /** the content before it was prettified */
-  old: string
+  readonly old: string
 
   /** the full path of the file */
-  path: string
+  readonly path: string
 }
 
 /** list of files that were prettified */
