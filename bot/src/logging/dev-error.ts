@@ -6,7 +6,7 @@ import { Context } from "./context"
 /** DevError incidates a Prettifier bug */
 export class DevError extends Error {
   context: Context
-  cause: Error
+  readonly cause: Error
 
   constructor(activity: string, cause: Error, context: Context = {}) {
     super(activity)

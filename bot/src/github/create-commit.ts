@@ -2,8 +2,8 @@ import { GitCreateBlobResponseData } from "@octokit/types"
 import { ProbotOctokit } from "probot"
 
 export interface FileToCreate {
-  content: string
-  path: string
+  readonly content: string
+  readonly path: string
 }
 
 export async function createCommit(args: {

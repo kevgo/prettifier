@@ -11,17 +11,17 @@ import { logUserError, UserError } from "./logging/user-error"
 import * as prettier from "./prettier"
 
 export interface PullRequestState {
-  branch: string
-  headOrg: string
-  octokit: InstanceType<typeof ProbotOctokit>
-  org: string
+  readonly branch: string
+  readonly headOrg: string
+  readonly octokit: InstanceType<typeof ProbotOctokit>
+  readonly org: string
   prettierConfig: prettier.Options
   prettierIgnore: string
   prettifierConfig: config.Data
   pullRequestId: string
   pullRequestNumber: number
-  pullRequestURL: string
-  repo: string
+  readonly pullRequestURL: string
+  readonly repo: string
 }
 
 /** called when this bot gets notified about a new pull request */
@@ -143,9 +143,9 @@ export async function onPullRequest(
       await github.addComment(context.github, {
         ...state,
         issueId: state.pullRequestId,
-        text: configReader.prettificationNotificationText({ files: prettifiedFiles.paths() }),
+        text: configReader.commentText({ files: prettifiedFiles.paths() }),
       })
-      console.log(`${repoPrefix}: COMMENTED ON PULL REQUEST FROM FORK`)
+      console.log(`${repoPrefix}: WELCOME COMMENT ON PULL REQUEST FROM FORK`)
       return
     }
 

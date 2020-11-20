@@ -7,11 +7,11 @@ import * as graphql from "./graphql-generated"
 
 /** fields unique to push contexts */
 interface PushContextUnique {
-  prettierIgnore: string
-  prettifierConfig: string
-  pullRequestId: string
-  pullRequestNumber: number
-  pullRequestURL: string
+  readonly prettierIgnore: string
+  readonly prettifierConfig: string
+  readonly pullRequestId: string
+  readonly pullRequestNumber: number
+  readonly pullRequestURL: string
 }
 
 /** the payload of loading additional push data via the GraphQL API */

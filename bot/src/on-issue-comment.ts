@@ -10,11 +10,11 @@ import { logUserError, UserError } from "./logging/user-error"
 const commandRE = /^\/([\w]+)\b *(.*)?$/
 
 interface IssueCommentState {
-  issueId: string
-  issueNr: number
-  octokit: InstanceType<typeof ProbotOctokit>
-  org: string
-  repo: string
+  readonly issueId: string
+  readonly issueNr: number
+  readonly octokit: InstanceType<typeof ProbotOctokit>
+  readonly org: string
+  readonly repo: string
 }
 
 export async function onIssueComment(

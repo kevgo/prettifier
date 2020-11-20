@@ -12,17 +12,17 @@ import { logUserError, UserError } from "./logging/user-error"
 import * as prettier from "./prettier"
 
 interface PushState {
-  author: string
-  branch: string
-  commitSha: string
-  octokit: InstanceType<typeof ProbotOctokit>
-  org: string
+  readonly author: string
+  readonly branch: string
+  readonly commitSha: string
+  readonly octokit: InstanceType<typeof ProbotOctokit>
+  readonly org: string
   prettierConfig: prettier.Options
   prettierIgnore: string
   prettifierConfig: config.Data
   pullRequestId: string
   pullRequestNumber: number
-  repo: string
+  readonly repo: string
 }
 
 /** called when this bot gets notified about a push on Github */
