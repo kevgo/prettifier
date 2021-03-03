@@ -1,6 +1,6 @@
 import ignore, { Ignore } from "ignore"
-import prettier from "prettier"
 
+import * as prettier from "../prettier"
 import * as templates from "../templates"
 import * as config from "."
 
@@ -17,7 +17,7 @@ export class Reader {
     this.ignore = ignore().add(data.excludeFiles).add(prettierIgnore)
   }
 
-  commentText(args: { files: string[] }): string {
+  commentText(args: { files: prettier.Result }): string {
     return templates.render(this.data.commentTemplate, args)
   }
 
